@@ -5,4 +5,4 @@ node_modules/
 *.txt
 
 # ignore all json files in data directories
-*/data/*.json
+data/*.json
