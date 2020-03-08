@@ -4,5 +4,5 @@ node_modules/
 # ignore all .txt files
 *.txt
 
-# ignore all data directories
-data/
+# ignore all json files in data directories
+data/*.json
