@@ -3,3 +3,6 @@ node_modules/
 
 # ignore all .txt files
 *.txt
+
+# ignore all data directories
+data/
