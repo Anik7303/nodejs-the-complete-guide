@@ -1,0 +1,25 @@
+{
+  "name": "section-06-additional-assignment-nodejs-the-complete-guide",
+  "version": "1.0.0",
+  "description": "Additional Assignment of Section 06 - Nodejs The Complete Guide Course",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "keywords": [
+    "Express",
+    "Nodejs",
+    "EJS"
+  ],
+  "author": "Anik",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}

@@ -1,0 +1,27 @@
+<%- include('includes/head.ejs') %>
+</head>
+
+<body>
+    <%- include('includes/navigation.ejs') %>
+    <main>
+        <% if(users.length > 0) { %>
+            <div class="grid">
+                <% users.forEach(user => { %>
+                    <article class="card">
+                        <header class="card__header">
+                            <h1 class="user_name"><%= user.name %></h1>
+                        </header>
+                        <div class="card__image">
+                            <img src="<%= user.imageLink %>" alt="<%= user.name %>">
+                        </div>
+                        <div class="card__actions">
+                            <button class="btn">Details</button>
+                        </div>
+                    </article>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <h1>No User Found!</h1>
+        <% } %>
+    </main>
+<%- include('includes/end.ejs') %>

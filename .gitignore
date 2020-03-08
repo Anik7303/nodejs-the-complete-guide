@@ -1,0 +1,5 @@
+# ignore all node_module directories
+node_modules/
+
+# ignore all .txt files
+*.txt

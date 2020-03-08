@@ -1,0 +1,23 @@
+{
+    "name": "working-with-express",
+    "version": "1.0.0",
+    "description": "Part 05 Working with Express of the course NodeJS - the complete guide",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon app.js"
+    },
+    "keywords": [
+        "NodeJs",
+        "Express"
+    ],
+    "author": "Anik",
+    "license": "ISC",
+    "devDependencies": {
+        "nodemon": "^2.0.2"
+    },
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "express": "^4.17.1"
+    }
+}

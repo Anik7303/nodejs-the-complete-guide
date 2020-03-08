@@ -1,0 +1,19 @@
+<%- include('includes/head.ejs') %>
+</head>
+
+<body>
+    <%- include('includes/navigation.ejs') %>
+    <main>
+        <form action="/add-user" method="post">
+            <div>
+                <label for="username">Name</label>
+                <input type="text" id="username" name="name" autofocus>
+            </div>
+            <div>
+                <label for="userImageLink">Image Link</label>
+                <input type="text" id="userImageLink" name="imageLink">
+            </div>
+            <button class="btn" type="submit">Add User</button>
+        </form>
+    </main>
+<%- include('includes/end.ejs') %>
