@@ -1,27 +1,29 @@
-<%- include('includes/head.ejs') %>
+<%- include('../includes/head.ejs') %>
     <link rel="stylesheet" href="/css/product.css">
 </head>
 
 <body>
-    <%- include('includes/navigation.ejs') %>
+    <%- include('../includes/navigation.ejs') %>
 
     <main>
-        <% if(prods.length > 0) { %>
+        <% if(products.length > 0) { %>
             <div class="grid">
-                <% for(let product of prods) { %>
+                <% for(let product of products) { %>
                     <article class="card product-item">
                         <header class="card__header">
                             <h1 class="product__title"><%= product.title %></h1>
                         </header>
                         <div class="card__image">
-                            <img src="https://cdn.pixabay.com/photo/2016/03/31/20/51/book-1296045_960_720.png" alt="A Book">
+                            <img src="<%= product.imageUrl %>" alt="<%= product.title%>">
                         </div>
                         <div class="card__content">
-                            <h2 class="product__price">$19.99</h2>
-                            <p class="product__description">A very interesting book about so many even more interesting things!</p>
+                            <h2 class="product__price">$<%= product.price %></h2>
+                            <p class="product__description"><%= product.description %></p>
                         </div>
                         <div class="card__actions">
-                            <button class="btn">Add to Cart</button>
+                            <form action="/add-to-cart" method="POST">
+                                <button class="btn">Add to Cart</button>
+                            </form>
                         </div>
                     </article>
                 <% } %>
@@ -30,4 +32,4 @@
             <h1>No Products Found</h1>
         <% } %>
     </main>
-<%- include('includes/end.ejs') %>
+<%- include('../includes/end.ejs') %>
