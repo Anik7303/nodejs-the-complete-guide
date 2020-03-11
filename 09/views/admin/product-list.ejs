@@ -22,7 +22,7 @@
                         </div>
                         <div class="card__actions">
                             <!-- <button class="btn" id="edit">Edit</button> -->
-                            <a href="/admin/edit-product" class="btn">Edit</a>
+                            <a href="/admin/edit-product/<%= product.id %>?edit=true" class="btn">Edit</a>
                             <form action="/admin/delete-product" method="POST">
                                 <button class="btn" type="submit">Delete</button>
                             </form>
