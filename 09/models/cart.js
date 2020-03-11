@@ -44,7 +44,7 @@ module.exports = class Cart {
         });
     }
 
-    static removeProduct(productId, productPrice) {
+    static removeProduct(productId, productPrice, callback) {
         getCartFromFile(cart => {
             if(cart.products.length > 0) {
                 let updatedProducts = [];
@@ -52,22 +52,22 @@ module.exports = class Cart {
                 for(let product of cart.products) {
                     if(product.id === productId) {
                         count = product.quantity;
-                        console.log('count: ', count);
                         continue;
                     }
                     updatedProducts.push(product);
                 }
                 cart.products = updatedProducts;
-                for(let index = 0; index < count; index++) {
-                    cart.totalPrice = cart.totalPrice - +productPrice;
-                    console.log('totalPrice: ', cart.totalPrice);
-                }
+                cart.totalPrice -= productPrice * count;
                 fs.writeFile(cartDataDir, JSON.stringify(cart), err => {
-                    if(err) {
-                        console.log(err);
-                    }
+                    callback(err);
                 });
             }
+        });
+    }
+
+    static fetchAll(callback) {
+        getCartFromFile(cart => {
+            callback(cart);
         });
     }
 }

@@ -1,10 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const p = path.join(path.dirname(process.mainModule.filename), 'data', 'products.json');
+const Cart = require('./cart');
+
+const productDataDir = path.join(path.dirname(process.mainModule.filename), 'data', 'products.json');
 
 const getProductsFromFile = (callback) => {
-    fs.readFile(p, (err, fileContent) => {
+    fs.readFile(productDataDir, (err, fileContent) => {
         if(err) {
             callback([]);
         } else {
@@ -31,7 +33,7 @@ module.exports = class Product {
                 this.id = Math.round(Math.random()*68000).toString();
                 products.push(this);
             }
-            fs.writeFile(p, JSON.stringify(products), (err) => {
+            fs.writeFile(productDataDir, JSON.stringify(products), (err) => {
                 if(err) {
                     console.log(err);
                 }
@@ -48,5 +50,28 @@ module.exports = class Product {
 
     static fetchAll(callback) {
         return getProductsFromFile(callback);
+    }
+
+    static delete(productId) {
+        getProductsFromFile(products => {
+            if(products) {
+                const updatedProducts = [];;
+                let productPrice = '';
+                for(let product of products) {
+                    console.log(product);
+                    if(product.id === productId) {
+                        productPrice = product.price;
+                        continue;
+                    }
+                    updatedProducts.push(product);
+                }
+                fs.writeFile(productDataDir, JSON.stringify(updatedProducts), err => {
+                    if(!err) {
+                        Cart.removeProduct(productId, productPrice);
+                    }
+                    console.log(err);
+                });
+            }
+        });
     }
 }
