@@ -1,7 +1,7 @@
 {
-  "name": "section-08-optional-enhancing-the-app",
+  "name": "section-09-dynamic-routes-and-advanced-models",
   "version": "1.0.0",
-  "description": "Section 08 of the course",
+  "description": "Section 09 - Dynamic Routes And Advanced Models - NodeJS - The Complete Guide",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

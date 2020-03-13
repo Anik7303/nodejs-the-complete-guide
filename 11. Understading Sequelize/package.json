@@ -1,7 +1,7 @@
 {
-  "name": "section-10-sql-introduction",
+  "name": "section-11-understanding-sequelize",
   "version": "1.0.0",
-  "description": "Section 10 - SQL Introduction - NodeJS - The Complete Guide",
+  "description": "Section 11 - Understanding Sequelize - NodeJS - The Complete Guide",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,12 +11,13 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Anik7303/nodejs-the-complete-guide.git"
+    "url": "git+https://github.com/Anik7303/nodejs-the-complete-guide.git"
   },
   "keywords": [
     "Nodejs",
     "Express",
-    "MySQL"
+    "MySQL",
+    "Sequelize"
   ],
   "bugs": {
     "url": "https://github.com/Anik7303/nodejs-the-complete-guide/issues"
@@ -26,7 +27,8 @@
     "body-parser": "^1.19.0",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
-    "mysql2": "^2.1.0"
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.21.5"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"
