@@ -53,26 +53,21 @@ module.exports.getProduct = (req, res, next) => {
 };
 
 module.exports.getCart = (req, res, next) => {
-    Cart.fetchAll(cart => {
-        Product.fetchAll(products => {
-            const newProducts = [];
-            for(let product of products) {
-                let cartProductData = cart.products.find(prod => prod.id === product.id);
-                if(cartProductData) {
-                    newProducts.push({...product, quantity: cartProductData.quantity});
-                }
-            }
-            const newCart = {
-                products: newProducts,
-                totalPrice: cart.totalPrice
-            };
+    req.user
+        .getCart()
+        .then(cart => {
+            return cart.getProducts();
+        })
+        .then(products => {
             res.render('shop/cart', {
-                pageTitle: 'Your Cart',
+                pageTitle: 'Cart',
                 path: '/cart',
-                cart: newCart
-            });
+                products: products
+            })
+        })
+        .catch(err => {
+            if(err) console.log(err);
         });
-    });
 };
 
 module.exports.postCart = (req, res, next) => {

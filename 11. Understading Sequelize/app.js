@@ -53,16 +53,17 @@ sequelize
     .sync()
     .then(result => {
         return User.findAll({ where: { id: 1 } });
-        app.listen(3000);
     })
     .then(users => {
-        const user = users[0];
-        if(!user) {
-            return User.create({ name: 'Anik', email: 'anik@example.com' });
+        if(users.length > 0) {
+            return users[0];
         }
-        return user;
+        return User.create({ name: 'Anik', email: 'anik@example.com' });
     })
     .then(user => {
+        return user.createCart();
+    })
+    .then(cart => {
         app.listen(3000);
     })
     .catch(err => console.log(err));
