@@ -82,13 +82,8 @@ module.exports.postEditProduct = (req, res, next) => {
     const productDescription = req.body.description;
 
     Product
-        .findAll({
-            where: {
-                id: productId
-            }
-        })
-        .then(products => {
-            const product = products[0];
+        .findByPk(productId)
+        .then(product => {
             product.title = productTitle;
             product.price = productPrice;
             product.imageUrl = productImageUrl;
@@ -141,13 +136,8 @@ module.exports.postDeleteProduct = (req, res, next) => {
 
     // another method
     // Product
-    //     .findAll({
-    //         where: {
-    //             id: productId
-    //         }
-    //     })
-    //     .then(products => {
-    //         const product = products[0];
+    //     .findByPk(productId)
+    //     .then(product => {
     //         return product.destroy();
     //     })
     //     .then(result => {

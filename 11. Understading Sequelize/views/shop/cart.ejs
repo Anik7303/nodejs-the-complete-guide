@@ -1,4 +1,5 @@
 <%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/cart.css">
 </head>
 
 <body>
@@ -6,28 +7,22 @@
     <main>
         <% if(products.length > 0) { %>
             <div>
-                <ol>
+                <ul class="cart__item-list">
                     <% for(let product of products) { %>
-                        <li>
-                            <p><%= product.title %> (<%= product.quantity %>)</p>
+                        <li class="cart__item">
+                            <h2><%= product.title %></h2>
+                            <h3>Quantity: <%= product.cartItem.quantity %></h3>
                             <form action="/cart-delete-item" method="post">
                                 <button type="submit" class="btn">Delete</button>
                                 <input type="hidden" name="productId" value="<%= product.id %>">
-                                <input type="hidden" name="productPrice" value="<%= product.price %>">
+                                <!-- <input type="hidden" name="cartItemId" value="<%= product.cartItem.id %>"> -->
                             </form>
                         </li>
                     <% } %>
-                </ol>
-            </div>
-            <div>
-                <ul>
-                    <li>
-                        <%= cart.totalPrice %>
-                    </li>
                 </ul>
             </div>
         <% } else { %>
-            <h1>Cart is empty!</h1>
+            <h1>No Products in Cart!</h1>
         <% } %>
     </main>
 

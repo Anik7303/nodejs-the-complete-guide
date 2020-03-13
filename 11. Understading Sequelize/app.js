@@ -52,16 +52,26 @@ sequelize
     // .sync({force: true})
     .sync()
     .then(result => {
-        return User.findAll({ where: { id: 1 } });
+        return User.findByPk(1);
     })
-    .then(users => {
-        if(users.length > 0) {
-            return users[0];
+    .then(user => {
+        if(user) {
+            return user;
         }
         return User.create({ name: 'Anik', email: 'anik@example.com' });
     })
     .then(user => {
-        return user.createCart();
+        return user
+            .getCart()
+            .then(cart => {
+                if(cart) {
+                    return cart;
+                }
+                return user.createCart();
+            })
+            .catch(err => {
+                if(err) console.log(err);
+            });
     })
     .then(cart => {
         app.listen(3000);
