@@ -26,16 +26,12 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-    User.findAll({
-            where: { id: 1}
-        })
-        .then(users => {
-            req.user = users[0];
+    User.findByPk(1)
+        .then(user => {
+            req.user = user;
             next();
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 })
 
 app.use('/admin', adminRoutes);
@@ -74,9 +70,7 @@ sequelize
                 }
                 return user.createCart();
             })
-            .catch(err => {
-                if(err) console.log(err);
-            });
+            .catch(err => console.log(err));
     })
     .then(cart => {
         app.listen(3000);

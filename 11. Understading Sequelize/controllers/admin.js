@@ -33,12 +33,9 @@ module.exports.postAddProduct = (req, res, next) => {
             description: productDescription
         })
         .then(result => {
-            console.log(productTitle, 'created!');
             res.redirect('/admin/products');
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.getEditProduct = (req, res, next) => {
@@ -69,9 +66,7 @@ module.exports.getEditProduct = (req, res, next) => {
                 product: product
             });
         })
-        .catch(err => {
-            console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.postEditProduct = (req, res, next) => {
@@ -91,12 +86,9 @@ module.exports.postEditProduct = (req, res, next) => {
             return product.save();
         })
         .then(result => {
-            console.log('update result:', result);
             res.redirect('/admin/products');
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.getProducts = (req, res, next) => {
@@ -113,9 +105,7 @@ module.exports.getProducts = (req, res, next) => {
                 products: products
             });
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.postDeleteProduct = (req, res, next) => {
@@ -127,12 +117,9 @@ module.exports.postDeleteProduct = (req, res, next) => {
             }
         })
         .then(result => {
-            console.log('delete result:', result);
             res.redirect('/admin/products');
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 
     // another method
     // Product
@@ -141,10 +128,7 @@ module.exports.postDeleteProduct = (req, res, next) => {
     //         return product.destroy();
     //     })
     //     .then(result => {
-    //         console.log('delete result:', result);
     //         res.redirect('/admin/products');
     //     })
-    //     .catch(err => {
-    //         if(err) console.log(err);
-    //     });
+    //     .catch(err => console.log(err));
 };

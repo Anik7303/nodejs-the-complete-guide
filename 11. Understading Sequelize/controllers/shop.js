@@ -11,9 +11,7 @@ module.exports.getIndex = (req, res, next) => {
                 products: products
             });
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.getProducts = (req, res, next) => {
@@ -26,9 +24,7 @@ module.exports.getProducts = (req, res, next) => {
                 products: products
             });
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.getProduct = (req, res, next) => {
@@ -47,9 +43,7 @@ module.exports.getProduct = (req, res, next) => {
     //         product: product
     //     });
     // })
-    // .catch(err => {
-    //     if(err) console.log(err);
-    // });
+    // .catch(err => console.log(err));
 
     Product
         .findByPk(productId)
@@ -60,9 +54,7 @@ module.exports.getProduct = (req, res, next) => {
                 product: product
             });
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.getCart = (req, res, next) => {
@@ -78,9 +70,7 @@ module.exports.getCart = (req, res, next) => {
                 products: products
             });
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.postCart = (req, res, next) => {
@@ -118,9 +108,7 @@ module.exports.postCart = (req, res, next) => {
         .then(() => {
             res.redirect('/cart');
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.postDeleteCartProduct = (req, res, next) => {
@@ -140,12 +128,9 @@ module.exports.postDeleteCartProduct = (req, res, next) => {
             return product.cartItem.destroy();
         })
         .then(result => {
-            console.log(result);
             res.redirect('/cart');
         })
-        .catch(err => {
-            if(err) console.log(err);
-        });
+        .catch(err => console.log(err));
 };
 
 module.exports.getOrders = (req, res, next) => {
@@ -154,7 +139,6 @@ module.exports.getOrders = (req, res, next) => {
             include: ['products']
         })
         .then(orders => {
-            console.log('orders', orders);
             res.render('shop/orders', {
                 pageTitle: 'Orders',
                 path: '/orders',
