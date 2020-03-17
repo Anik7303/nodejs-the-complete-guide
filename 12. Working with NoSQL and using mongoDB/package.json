@@ -1,0 +1,34 @@
+{
+  "name": "section-12-working-with-nosql-and-using-mongodb",
+  "version": "1.0.0",
+  "description": "Section 12 - Working with NoSQL and using MongoDB - NodeJS - The Complete Guide",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "author": "Anik",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anik7303/nodejs-the-complete-guide.git"
+  },
+  "keywords": [
+    "NodeJS",
+    "MongoDB",
+    "Express"
+  ],
+  "bugs": {
+    "url": "https://github.com/Anik7303/nodejs-the-complete-guide/issues"
+  },
+  "homepage": "https://github.com/Anik7303/nodejs-the-complete-guide#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "mongodb": "^3.5.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
