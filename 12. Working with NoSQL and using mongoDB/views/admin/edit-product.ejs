@@ -26,7 +26,6 @@
             </div>
             <% if(editing) { %>
                 <input type="hidden" name="id" value="<%= product._id %>">
-                <% console.log(product._id) %>
             <% } %>
 
             <button class="btn" type="submit"><% if(editing) { %> Update Product <% } else { %> Add Product <% } %></button>
