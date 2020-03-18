@@ -73,10 +73,7 @@ module.exports.postDeleteCartProduct = (req, res, next) => {
 };
 
 module.exports.getOrders = (req, res, next) => {
-    req.user.
-        getOrders({
-            include: ['products']
-        })
+    req.user.getOrders()
         .then(orders => {
             res.render('shop/orders', {
                 pageTitle: 'Orders',
@@ -88,27 +85,7 @@ module.exports.getOrders = (req, res, next) => {
 };
 
 module.exports.postOrder = (req, res, next) => {
-    let fetchedCart;
-    req.user
-        .getCart()
-        .then(cart => {
-            fetchedCart = cart;
-            return cart.getProducts();
-        })
-        .then(products => {
-            return req.user
-                .createOrder()
-                .then(order => {
-                    return order.addProducts(products.map(product => {
-                        product.orderItem = { quantity: product.cartItem.quantity };
-                        return product;
-                    }));
-                })
-                .catch(err => console.log(err));
-        })
-        .then(result => {
-            return fetchedCart.setProducts(null);
-        })
+    req.user.addOrder()
         .then(result => {
             res.redirect('/orders');
         })

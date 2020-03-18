@@ -86,15 +86,4 @@ module.exports.postDeleteProduct = (req, res, next) => {
             res.redirect('/admin/products');
         })
         .catch(err => console.log(err));
-
-    // another method
-    // Product
-    //     .findByPk(productId)
-    //     .then(product => {
-    //         return product.destroy();
-    //     })
-    //     .then(result => {
-    //         res.redirect('/admin/products');
-    //     })
-    //     .catch(err => console.log(err));
 };
