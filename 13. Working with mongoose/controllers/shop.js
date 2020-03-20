@@ -3,7 +3,7 @@ const Product = require('../models/product');
 
 module.exports.getIndex = (req, res, next) => {
     Product
-        .fetchAll()
+        .find()
         .then(products => {
             res.render('shop/index', {
                 pageTitle: 'Shop',
@@ -16,7 +16,9 @@ module.exports.getIndex = (req, res, next) => {
 
 module.exports.getProducts = (req, res, next) => {
     Product
-        .fetchAll()
+        .find()
+        // .select('title price -_id')
+        // .populate('userId', '_id')
         .then(products => {
             res.render('shop/product-list', {
                 pageTitle: 'Products',
@@ -43,8 +45,13 @@ module.exports.getProduct = (req, res, next) => {
 };
 
 module.exports.getCart = (req, res, next) => {
-    req.user.getCart()
-        .then(products => {
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            let products = [ ...user.cart.items ].map(product => {
+                return { ...product.productId._doc, quantity: product.quantity };
+            });
             res.render('shop/cart', {
                 pageTitle: 'Cart',
                 path: '/cart',
@@ -65,7 +72,7 @@ module.exports.postCart = (req, res, next) => {
 
 module.exports.postDeleteCartProduct = (req, res, next) => {
     const productId = req.body.productId;
-    req.user.deleteFromCart(productId)
+    req.user.deleteItemFromCart(productId)
         .then(result => {
             res.redirect('/cart');
         })

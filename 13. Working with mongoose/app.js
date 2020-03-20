@@ -2,16 +2,16 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
-const app = express();
-
-const mongoConnect = require('./util/database').mongoConnect;
 const errorsController = require('./controllers/errors.js');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 // Models
 const User = require('./models/user');
+
+const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -20,11 +20,11 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-    User.fetchAll()
-        .then(users => {
-            if(users.length > 0 && !req.user) {
-                const user = users[0];
-                req.user = new User(user.username, user.email, user.cart, user._id);
+    User
+        .findById('5e751621b63f9c0a64ad3c14')
+        .then(user => {
+            if(user && !req.user) {
+                req.user = user;
             }
             next();
         })
@@ -36,18 +36,26 @@ app.use(shopRoutes);
 
 app.use(errorsController.get404);
 
-mongoConnect(() => {
-    User.fetchAll()
-        .then(users => {
-            if(users.length > 0) {
-                return users[0];
-            } else {
-                const newUser = new User('anik', 'anik@example.com', { items: [] });
-                return newUser.save();
-            }
-        })
-        .then(result => {
-            app.listen(3000);
-        })
-        .catch(err => console.log(err));
-});
+const uri = 'mongodb+srv://anik7703:o9bQGRkq9bpFeHWq@cluster0-5fdut.mongodb.net/shop?retryWrites=true&w=majority';
+
+mongoose
+    .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(result => {
+        return User.findOne();
+    })
+    .then(user => {
+        if(!user) {
+            user = new User({
+                username: 'Anik',
+                email: 'anik@example.com',
+                cart: {
+                    items: []
+                }
+            });
+        }
+        return user.save();
+    })
+    .then(result => {
+        app.listen(3000);
+    })
+    .catch(err => console.log(err));
