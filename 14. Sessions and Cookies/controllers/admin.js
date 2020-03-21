@@ -1,10 +1,12 @@
 const Product = require('../models/product');
+const cookies = require('../util/cookie');
 
 module.exports.getAddProduct = (req, res, next) => {
     res.render('admin/edit-product', {
         pageTitle:'Add Product',
         path: '/admin/add-product',
-        editing: false
+        editing: false,
+        isAuthenticated: req.session.isLoggedIn
     });
 };
 
@@ -13,7 +15,7 @@ module.exports.postAddProduct = (req, res, next) => {
     const productPrice = req.body.price;
     const productImageUrl = req.body.imageUrl;
     const productDescription = req.body.description;
-    const userId = req.user._id;
+    const userId = req.session.user._id;
 
     const product = new Product({
         title: productTitle,
@@ -38,7 +40,8 @@ module.exports.getProducts = (req, res, next) => {
             res.render('admin/product-list', {
                 pageTitle: 'All Products',
                 path: '/admin/products',
-                products: products
+                products: products,
+                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => console.log(err));
@@ -52,11 +55,13 @@ module.exports.getEditProduct = (req, res, next) => {
     Product
         .findById(productId)
         .then(product => {
+            if(!product) res.redirect('/');
             res.render('admin/edit-product', {
                 pageTitle: product.title,
                 path: '/admin/products',
                 editing: editMode,
-                product: product
+                product: product,
+                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => console.log(err));
