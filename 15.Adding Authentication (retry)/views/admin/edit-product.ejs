@@ -11,7 +11,7 @@
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="form-control">
                 <label for="title">Title</label>
-                <input type="text" name="title" id="title" value="<% if(editing) { %><%= product.title %><%} %>" autofocus>
+                <input type="text" name="title" id="title" value="<% if(editing) { %><%= product.title %><%} %>">
             </div>
             <div class="form-control">
                 <label for="imageUrl">Image URL</label>
