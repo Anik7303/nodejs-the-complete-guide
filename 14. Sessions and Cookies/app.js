@@ -17,7 +17,7 @@ const authRoutes = require('./routes/auth');
 const User = require('./models/user');
 
 const MONGODBURI = 'mongodb+srv://anik7703:o9bQGRkq9bpFeHWq@cluster0-5fdut.mongodb.net/shop';
-const SESSION_SECRET_KEY = 'asjdlkgnqoiwenkvnqariosjgqwijrkasflk';
+const SESSION_SECRET_KEY = 'asjdlkgariosjsfl';
 
 const app = express();
 const store = new MongoDBStore({

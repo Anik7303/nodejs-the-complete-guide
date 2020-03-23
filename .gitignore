@@ -9,3 +9,5 @@ data/*.json
 
 # ignore all package-lock.json files
 package-lock.json
+
+*.code-workspace
