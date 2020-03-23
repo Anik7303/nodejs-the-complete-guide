@@ -34,7 +34,9 @@ module.exports.postAddProduct = (req, res, next) => {
 
 module.exports.getProducts = (req, res, next) => {
     Product
-        .find()
+        .find({
+            userId: req.session.user._id
+        })
         .then(products => {
             res.render('admin/product-list', {
                 pageTitle: 'All Products',
