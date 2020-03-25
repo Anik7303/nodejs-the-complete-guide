@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 
+const envKeys = require('./keys');
+
 const errorsController = require('./controllers/errors.js');
 
 // Routes
@@ -15,9 +17,6 @@ const authRoutes = require('./routes/auth');
 
 // Models
 const User = require('./models/user');
-
-const MONGODBURI = 'mongodb+srv://anik7703:o9bQGRkq9bpFeHWq@cluster0-5fdut.mongodb.net/shop';
-const SESSION_SECRET_KEY = 'asjdlkgariosjsfl';
 
 const app = express();
 const store = new MongoDBStore({
@@ -31,7 +30,7 @@ app.set('views', 'views');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: SESSION_SECRET_KEY,
+    secret: envKeys.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: false,
     store: store
@@ -59,7 +58,7 @@ app.use(authRoutes);
 app.use(errorsController.get404);
 
 mongoose
-    .connect(MONGODBURI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(envKeys.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     // .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
         return User.findOne();
@@ -77,6 +76,6 @@ mongoose
         return user.save();
     })
     .then(result => {
-        app.listen(3000);
+        app.listen(envKeys.PORT);
     })
     .catch(err => console.log(err));
