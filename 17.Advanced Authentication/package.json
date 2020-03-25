@@ -4,7 +4,7 @@
   "description": "Section 17 - Advanced Authentication - NodeJS - The Complete Guide Course",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon app.js"
   },
   "repository": {
     "type": "git",

@@ -1,16 +1,9 @@
-const bcrypt = require('bcryptjs');
-// const nodemailer = require('nodemailer');
-// const sendgridTransport = require('nodemailer-sendgrid-transport'); // this doesn't work as i haven't been able to create an sendgrid account
+const crypto = require('crypto');
 
-// const transporter = nodemailer.createTransport(sendgridTransport({
-//     auth: {
-//         api_key: '<api key from sendgrid account>'
-//     }
-// }));
+const bcrypt = require('bcryptjs');
 
 const envKeys = require('../keys');
 const User = require('../models/user');
-// const cookies = require('../util/cookie');
 const etherealMail = require('../util/mail'); // uses fake smtp server : ethereal.email
 
 module.exports.getLogin = (req, res, next) => {
@@ -25,7 +18,7 @@ module.exports.getLogin = (req, res, next) => {
 
 module.exports.getSignup = (req, res, next) => {
     let message = req.flash('error');
-    if(message.length <= 0) message = null;
+    if(message.length === 0) message = null;
     res.render('auth/signup', {
         pageTitle: 'Signup',
         path: '/signup',
@@ -33,11 +26,46 @@ module.exports.getSignup = (req, res, next) => {
     });
 };
 
+module.exports.getReset = (req, res, next) => {
+    let message = req.flash('error');
+    if(message.length === 0) message = null;
+    res.render('auth/reset-password', {
+        pageTitle: 'Reset Password',
+        path: '/reset',
+        errorMessage: message
+    })
+};
+
+module.exports.getNewPassword = (req, res, next) => {
+    const token = req.params.resetToken;
+    User
+        .findOne({
+            resetToken: token,
+            resetTokenExpiration: { $gt: Date.now() }
+        })
+        .then(user => {
+            if(user) {
+                let message = req.flash('error');
+                if(message.length === 0) message = null;
+                res.render('auth/new-password', {
+                    pageTitle: 'New Password',
+                    path: '/new-password',
+                    errorMessage: message,
+                    resetToken: token,
+                    userId: user._id.toString()
+                });
+            } else {
+                req.flash('error', 'Something went wrong. Please try again later.');
+                res.redirect('/login');
+            }
+        })
+        .catch(err => console.log(err));
+};
+
 module.exports.postLogin = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    // res.setHeader('Set-Cookie', 'loggedIn=true; Max-Age=10; httpOnly');
-    // res.setHeader('Set-Cookie', 'loggedIn=true; Max-Age:10; Secure');
+    
     User
         .findOne({
             email: email
@@ -105,12 +133,7 @@ module.exports.postSignup = (req, res, next) => {
                             'subject': 'Welcome',
                             'text': 'Thank you for signing up with us.'
                         };
-                        // // for sendgrid
-                        // transporter.sendMail(message, (err, info) => {
-                        //     if(err) console.log(err);
-                        //     console.log('email log: ', info);
-                        // });
-
+                        
                         etherealMail(message, messageUrl => console.log(messageUrl));
                         res.redirect('/login');
                     })
@@ -119,11 +142,87 @@ module.exports.postSignup = (req, res, next) => {
 
         })
         .catch(err => console.log(err));
-}
+};
 
 module.exports.postLogout = (req, res, next) => {
     req.session.destroy(err => {
         if(err) console.log(err);
         res.redirect('/');
     });
-}
+};
+
+module.exports.postReset = (req, res, next) => {
+    crypto.randomBytes(32, (err, buffer) => {
+        if(err) {
+            console.log(err);
+            return res.redirect('/reset');
+        }
+        const token = buffer.toString('hex');
+        User
+            .findOne({ email: req.body.email })
+            .then(user => {
+                if(!user) {
+                    req.flash('error', 'No account with that email found.');
+                    res.redirect('/reset');
+                    return null;
+                }
+                user.resetToken = token;
+                user.resetTokenExpiration = Date.now() + (60 * 60 * 1000);
+                return user.save();
+            })
+            .then(result => {
+                if(result) {
+                    etherealMail({
+                        to: req.body.email,
+                        from: envKeys.EMAIL_SENDER,
+                        subject: 'Reset Password',
+                        html: `
+                            <p>You requested password reset.</p>
+                            <p> Click this link to set a new password:</p>
+                            <a href="http://localhost:${envKeys.PORT}/reset/${token}">http://localhost:${envKeys.PORT}/reset/${token}</a>
+                        `
+                    }, messageUrl => console.log(messageUrl));
+                    res.redirect('/');
+                }
+            })
+            .catch(err => console.log(err));
+    });
+};
+
+module.exports.postNewPassword = (req, res, next) => {
+    const userId = req.body.userId;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+    const resetToken = req.body.resetToken;
+    User
+        .findOne({
+            _id: userId,
+            resetToken: resetToken,
+            resetTokenExpiration: { $gt: Date.now() }
+        })
+        .then(user => {
+            if(user) {
+                bcrypt
+                    .hash(password, 12)
+                    .then(hashedPassword => {
+                        user.password = hashedPassword;
+                        user.resetToken = null;
+                        user.resetTokenExpiration = undefined;
+                        return user.save();
+                    })
+                    .then(result => {
+                        etherealMail({
+                            to: user.email,
+                            from: envKeys.EMAIL_SENDER,
+                            subject: 'Password Reset Success',
+                            html: `
+                                <p>Your password has been reset successfully at ${new Date(Date.now()).toString()}</p>
+                            `
+                        }, messageUrl => console.log(messageUrl));
+                        res.redirect('/login');
+                    })
+                    .catch(err => console.log(err));
+            }
+        })
+        .catch(err => console.log(err));
+};
