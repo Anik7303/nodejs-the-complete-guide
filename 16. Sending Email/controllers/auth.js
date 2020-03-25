@@ -1,7 +1,17 @@
 const bcrypt = require('bcryptjs');
+// const nodemailer = require('nodemailer');
+// const sendgridTransport = require('nodemailer-sendgrid-transport'); // this doesn't work as i haven't been able to create an sendgrid account
 
+// const transporter = nodemailer.createTransport(sendgridTransport({
+//     auth: {
+//         api_key: '<api key from sendgrid account>'
+//     }
+// }));
+
+const envKeys = require('../keys');
 const User = require('../models/user');
 // const cookies = require('../util/cookie');
+const etherealMail = require('../util/mail'); // uses fake smtp server : ethereal.email
 
 module.exports.getLogin = (req, res, next) => {
     let message = req.flash('error');
@@ -41,7 +51,7 @@ module.exports.postLogin = (req, res, next) => {
                             req.session.user = user;
                             req.session.isLoggedIn = true;
                             req.session.save(err => {
-                                if(err) console.log(err);
+                                if(err) console.log(err);                                
                                 res.redirect('/');
                             });
                         } else {
@@ -89,6 +99,19 @@ module.exports.postSignup = (req, res, next) => {
                         return newUser.save();
                     })
                     .then(result => {
+                        let message = {
+                            'to': email,
+                            'from': envKeys.EMAIL_SENDER,
+                            'subject': 'Welcome',
+                            'text': 'Thank you for signing up with us.'
+                        };
+                        // // for sendgrid
+                        // transporter.sendMail(message, (err, info) => {
+                        //     if(err) console.log(err);
+                        //     console.log('email log: ', info);
+                        // });
+
+                        etherealMail(message, messageUrl => console.log(messageUrl));
                         res.redirect('/login');
                     })
                     .catch(err => console.log(err));

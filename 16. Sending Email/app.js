@@ -8,6 +8,8 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 
+const envKeys = require('./keys');
+
 const errorsController = require('./controllers/errors.js');
 
 // Routes
@@ -18,13 +20,11 @@ const authRoutes = require('./routes/auth');
 // Models
 const User = require('./models/user');
 
-const MONGODBURI = 'mongodb+srv://anik7703:o9bQGRkq9bpFeHWq@cluster0-5fdut.mongodb.net/shop';
-const SESSION_SECRET_KEY = 'asjdlkgariosjsfl';
 const PORT = 3000;
 
 const app = express();
 const store = new MongoDBStore({
-    uri: MONGODBURI,
+    uri: envKeys.MONGODB_URI,
     collection: 'sessions'
 });
 const csrfProtection = csrf();
@@ -35,7 +35,7 @@ app.set('views', 'views');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: SESSION_SECRET_KEY,
+    secret: envKeys.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: false,
     store: store
@@ -71,8 +71,8 @@ app.use(authRoutes);
 app.use(errorsController.get404);
 
 mongoose
-    .connect(MONGODBURI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(envKeys.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
-        app.listen(PORT);
+        app.listen(envKeys.PORT);
     })
     .catch(err => console.log(err));
