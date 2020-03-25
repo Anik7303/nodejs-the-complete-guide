@@ -1,7 +1,7 @@
 # NodeJS - The Complete Guide - Udemy Course
 
 ### For Section 12 and above, please create a file in the same directory as app.js named 'keys.js' and fill it with like below.
-
+```
 * module.exports.PORT = 3000;
 
 * module.exports.SESSION_SECRET_KEY = <session_secret_key>;
@@ -15,3 +15,4 @@
 * module.exports.ETHEREAL_PASS = <password>;
 
 * module.exports.EMAIL_SENDER = <email_address>;
+```
