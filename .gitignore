@@ -1,7 +1,7 @@
 # ignore all node_module directories
 node_modules/
 
-# environment keys
+# important keys
 keys.js
 
 # ignore all .txt files
