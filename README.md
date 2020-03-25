@@ -1,8 +1,8 @@
 # NodeJS - The Complete Guide - Udemy Course
 
 ### For Section 12 and above -
-* create a file name 'keys.js' in the same folder as app.js file
-* fill it with the key value pairs like shown below
+* create a file name **keys.js** in the same folder as **app.js**
+* fill it with the __key-value__ pairs like shown below
 ```
 module.exports.PORT = 3000;
 module.exports.SESSION_SECRET_KEY = <session_secret_key>;
