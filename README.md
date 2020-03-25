@@ -1,5 +1,4 @@
 # NodeJS - The Complete Guide - Udemy Course
-## Course Materials and Assignments
 
 ### For Section 12 and above, please create a file in the same directory as app.js named 'keys.js' and fill it with like below.
 
