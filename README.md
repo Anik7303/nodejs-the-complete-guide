@@ -5,13 +5,10 @@
 
 * module.exports.PORT = 3000;
 
-// Session
 * module.exports.SESSION_SECRET_KEY = <session_secret_key>;
 
-// Database
 * module.exports.MONGODB_URI = <mongodb_database_connection_uri>;
 
-// Email
 * module.exports.EMAIL_HOST = 'smtp.ethereal.email';
 * module.exports.EMAIL_PORT = 587;
 * module.exports.EMAIL_SECURE = false;
