@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
+const envKeys = require('./keys');
+
 const mongoConnect = require('./util/database').mongoConnect;
 const errorsController = require('./controllers/errors.js');
 const adminRoutes = require('./routes/admin');
@@ -47,7 +49,7 @@ mongoConnect(() => {
             }
         })
         .then(result => {
-            app.listen(3000);
+            app.listen(envKeys.PORT);
         })
         .catch(err => console.log(err));
 });

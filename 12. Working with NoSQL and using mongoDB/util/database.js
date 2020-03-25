@@ -1,12 +1,12 @@
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 
-const uri = process.env.MONGODB_URI_SHOP;
+const envKeys = require('../keys');
 
 let _db;
 
 const mongoConnect = (callback) => {
-    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    MongoClient.connect(envKeys.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
         .then(client => {
             _db = client.db();
             callback();
