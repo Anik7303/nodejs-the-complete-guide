@@ -1,12 +1,12 @@
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 
-const uri = 'mongodb+srv://anik7703:o9bQGRkq9bpFeHWq@cluster0-5fdut.mongodb.net/shop?retryWrites=true&w=majority';
+const envKeys = require('../keys');
 
 let _db;
 
 const mongoConnect = (callback) => {
-    MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    MongoClient.connect(envKeys.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
         .then(client => {
             _db = client.db();
             callback();

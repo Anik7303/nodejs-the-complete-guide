@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
+const envKeys = require('./keys');
+
 const errorsController = require('./controllers/errors.js');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -36,10 +38,8 @@ app.use(shopRoutes);
 
 app.use(errorsController.get404);
 
-const uri = 'mongodb+srv://anik7703:o9bQGRkq9bpFeHWq@cluster0-5fdut.mongodb.net/shop?retryWrites=true&w=majority';
-
 mongoose
-    .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(envKeys.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
         return User.findOne();
     })
@@ -56,6 +56,6 @@ mongoose
         return user.save();
     })
     .then(result => {
-        app.listen(3000);
+        app.listen(envKeys.PORT);
     })
     .catch(err => console.log(err));
