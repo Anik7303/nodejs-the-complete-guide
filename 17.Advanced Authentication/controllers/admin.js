@@ -32,15 +32,36 @@ module.exports.postAddProduct = (req, res, next) => {
 };
 
 module.exports.getProducts = (req, res, next) => {
+    let errorMessage = req.flash('error');
+    let alertMessage = req.flash('alert');
+    let successMessage = req.flash('success');
+    let message;
+    let messageType;
+    if(alertMessage.length > 0) {
+        message = alertMessage;
+        messageType = 'alert';
+    } else if (errorMessage.length > 0) {
+        message = errorMessage;
+        messageType = 'error';
+    } else if (successMessage.length > 0) {
+        message = successMessage;
+        messageType = 'success';
+    } else {
+        message = null;
+        messageType = null;
+    }
+    
     Product
         .find({
-            userId: req.session.user._id
+            userId: req.user._id
         })
         .then(products => {
             res.render('admin/product-list', {
                 pageTitle: 'All Products',
                 path: '/admin/products',
-                products: products
+                products: products,
+                message: message,
+                messageType: messageType
             });
         })
         .catch(err => console.log(err));
@@ -54,13 +75,17 @@ module.exports.getEditProduct = (req, res, next) => {
     Product
         .findById(productId)
         .then(product => {
-            if(!product) res.redirect('/');
-            res.render('admin/edit-product', {
-                pageTitle: product.title,
-                path: '/admin/products',
-                editing: editMode,
-                product: product
-            });
+            if(!product || product.userId.toString() !== req.user._id.toString()) {
+                req.flash('alert', 'You can not edit this product information.');
+                res.redirect('/admin/products');
+            } else {
+                res.render('admin/edit-product', {
+                    pageTitle: product.title,
+                    path: '/admin/products',
+                    editing: editMode,
+                    product: product
+                });
+            }
         })
         .catch(err => console.log(err));
 };
@@ -75,13 +100,18 @@ module.exports.postEditProduct = (req, res, next) => {
     Product
         .findById(productId)
         .then(product => {
-            product.title = productTitle;
-            product.price = productPrice;
-            product.imageUrl = productImageUrl;
-            product.description = productDescription;
-            return product.save();
+            if(product.userId.toString() === req.user._id.toString()) {
+                product.title = productTitle;
+                product.price = productPrice;
+                product.imageUrl = productImageUrl;
+                product.description = productDescription;
+                return product.save();
+            } else {
+                req.flash('alert', 'You can not edit this product information.');
+            }
         })
         .then(result => {
+            if(result) req.flash('success', 'Product update successful');
             res.redirect('/admin/products');
         })
         .catch(err => console.log(err));
@@ -91,8 +121,14 @@ module.exports.postDeleteProduct = (req, res, next) => {
     const productId = req.body.productId;
     Product
         // .findByIdAndRemove(productId) // deprecated without setting 'useFindAndModify: false'
-        .findByIdAndDelete(productId)
+        // .findByIdAndDelete(productId)
+        .deleteOne({
+            _id: productId,
+            userId: req.user._id
+        })
         .then(result => {
+            if(result.deletedCount > 0) req.flash('success', 'Product successfully deleted.');
+            else req.flash('alert', 'You can not delete this product.');
             res.redirect('/admin/products');
         })
         .catch(err => console.log(err));
