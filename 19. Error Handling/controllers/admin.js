@@ -45,7 +45,11 @@ module.exports.getProducts = (req, res, next) => {
                 messageType: messageType
             });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 module.exports.getEditProduct = (req, res, next) => {
@@ -70,7 +74,11 @@ module.exports.getEditProduct = (req, res, next) => {
                 });
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 module.exports.postAddProduct = (req, res, next) => {
@@ -112,7 +120,11 @@ module.exports.postAddProduct = (req, res, next) => {
         .then(result => {
             res.redirect('/admin/products');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 module.exports.postEditProduct = (req, res, next) => {
@@ -159,7 +171,11 @@ module.exports.postEditProduct = (req, res, next) => {
             if(result) req.flash('success', 'Product update successful');
             res.redirect('/admin/products');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 module.exports.postDeleteProduct = (req, res, next) => {
@@ -176,5 +192,9 @@ module.exports.postDeleteProduct = (req, res, next) => {
             else req.flash('alert', 'You can not delete this product.');
             res.redirect('/admin/products');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };

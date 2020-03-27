@@ -67,7 +67,11 @@ module.exports.getNewPassword = (req, res, next) => {
                 res.redirect('/login');
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 module.exports.postLogin = (req, res, next) => {
@@ -132,7 +136,11 @@ module.exports.postLogin = (req, res, next) => {
                     });
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 module.exports.postSignup = (req, res, next) => {
@@ -176,7 +184,11 @@ module.exports.postSignup = (req, res, next) => {
             etherealMail(message, messageUrl => console.log(messageUrl));
             res.redirect('/login');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
 
 module.exports.postLogout = (req, res, next) => {
@@ -243,7 +255,11 @@ module.exports.postReset = (req, res, next) => {
                     res.redirect('/');
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
+            });
     });
 };
 
@@ -288,8 +304,16 @@ module.exports.postNewPassword = (req, res, next) => {
                         }, messageUrl => console.log(messageUrl));
                         res.redirect('/login');
                     })
-                    .catch(err => console.log(err));
+                    .catch(err => {
+                        const error = new Error(err);
+                        error.httpStatusCode = 500;
+                        return next(error);
+                    });
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 };
