@@ -11,7 +11,7 @@ module.exports.productInfo = [
     body('price')
         .isFloat(),
     body('description')
-        .isLength({ min: 5, max: 200})
+        .isLength({ min: 5, max: 200}).withMessage('description should be between 5 to 200 characters')
         .isString()
         .trim()
 ];
