@@ -250,21 +250,13 @@ module.exports.postReset = (req, res, next) => {
 module.exports.postNewPassword = (req, res, next) => {
     const userId = req.body.userId;
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
     const resetToken = req.body.resetToken;
     const errors = validationResult(req);
+    const message = errors.array().map(error => error.msg);
 
     if(!errors.isEmpty()) {
-        const link = '/reset/' + resetToken;
-        res.redirect(link);
-        // return res
-        //     .status(422)
-        //     .render(link, {
-        //         pageTitle: 'Reset',
-        //         path: '/reset',
-        //         errorMessage: errors.array().map(error => error.msg),
-        //         validationErrors: errors.array()
-        //     });
+        req.flash('error', errors.array().map(error => error.msg));
+        res.redirect('/reset/'+resetToken);
         return null;
     }
 
