@@ -53,14 +53,14 @@ module.exports.getNewPassword = (req, res, next) => {
         .then(user => {
             if(user) {
                 let message = req.flash('error');
-                if(message.length === 0) message = [];
+                let validationErrors = req.flash('validationErrors');
                 res.render('auth/new-password', {
                     pageTitle: 'New Password',
                     path: '/new-password',
-                    errorMessage: message,
+                    errorMessage: message.length > 0 ? message : [],
                     resetToken: token,
                     userId: user._id.toString(),
-                    validationErrors: []
+                    validationErrors: validationErrors.length > 0 ? validationErrors : []
                 });
             } else {
                 req.flash('error', 'Something went wrong. Please try again later.');
@@ -256,6 +256,7 @@ module.exports.postNewPassword = (req, res, next) => {
 
     if(!errors.isEmpty()) {
         req.flash('error', errors.array().map(error => error.msg));
+        req.flash('validationErrors', errors.array());
         res.redirect('/reset/'+resetToken);
         return null;
     }
