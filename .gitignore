@@ -9,8 +9,3 @@ keys.js
 
 # ignore all json files in data directories
 data/*.json
-
-# ignore all package-lock.json files
-package-lock.json
-
-*.code-workspace
