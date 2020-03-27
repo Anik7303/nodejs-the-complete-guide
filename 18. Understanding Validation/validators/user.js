@@ -44,7 +44,7 @@ module.exports.resetPassword = [
                 .findOne({ email: value })
                 .then(user => {
                     if(!user) return Promise.reject('this email does not belong to any registered user');
-                })
+                });
         })
 ];
 

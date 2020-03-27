@@ -193,7 +193,7 @@ module.exports.postReset = (req, res, next) => {
     if(!errors.isEmpty()) {
         return res
             .status(422)
-            .render('/reset', {
+            .render('auth/reset-password', {
                 pageTitle: 'Reset',
                 path: '/reset',
                 errorMessage: errors.array().map(error => error.msg),
@@ -255,15 +255,14 @@ module.exports.postNewPassword = (req, res, next) => {
     const errors = validationResult(req);
 
     if(!errors.isEmpty()) {
-        console.log(req);
-        console.log(req.headers.referer);
+        const link = '/reset/' + resetToken;
+        res.redirect(link);
         // return res
         //     .status(422)
-        //     .render('/reset', {
+        //     .render(link, {
         //         pageTitle: 'Reset',
         //         path: '/reset',
         //         errorMessage: errors.array().map(error => error.msg),
-        //         oldInput: { email: email },
         //         validationErrors: errors.array()
         //     });
         return null;
