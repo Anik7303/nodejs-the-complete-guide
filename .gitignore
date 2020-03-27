@@ -9,3 +9,7 @@ keys.js
 
 # ignore all json files in data directories
 data/*.json
+
+# ignore all image files
+
+images/
