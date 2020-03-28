@@ -12,11 +12,11 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-module.exports = (message, callback) => {
+module.exports.send = (message, callback) => {
     transporter
         .sendMail(message)
         .then(info => {
             callback(nodemailer.getTestMessageUrl(info));
         })
         .catch(err => console.log(err));
-};
+}

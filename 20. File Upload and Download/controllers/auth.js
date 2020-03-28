@@ -5,7 +5,7 @@ const { validationResult } = require('express-validator');
 
 const envKeys = require('../keys');
 const User = require('../models/user');
-const etherealMail = require('../util/mail'); // uses fake smtp server : ethereal.email
+const mail = require('../util/mail'); // uses fake smtp server : ethereal.email
 
 module.exports.getLogin = (req, res, next) => {
     let messages = req.flash('error');
@@ -181,7 +181,7 @@ module.exports.postSignup = (req, res, next) => {
                 'text': 'Thank you for signing up with us.'
             };
             
-            etherealMail(message, messageUrl => console.log(messageUrl));
+            mail.send(message, messageUrl => console.log(messageUrl));
             res.redirect('/login');
         })
         .catch(err => {
@@ -242,7 +242,7 @@ module.exports.postReset = (req, res, next) => {
             })
             .then(result => {
                 if(result) {
-                    etherealMail({
+                    mail.send({
                         to: email,
                         from: envKeys.EMAIL_SENDER,
                         subject: 'Reset Password',
@@ -294,7 +294,7 @@ module.exports.postNewPassword = (req, res, next) => {
                         return user.save();
                     })
                     .then(result => {
-                        etherealMail({
+                        mail.send({
                             to: user.email,
                             from: envKeys.EMAIL_SENDER,
                             subject: 'Password Reset Success',

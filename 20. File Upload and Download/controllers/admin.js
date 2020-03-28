@@ -1,3 +1,6 @@
+const path = require('path');
+
+const fileHelper = require('../util/file');
 const Product = require('../models/product');
 
 const { validationResult } = require('express-validator');
@@ -169,7 +172,10 @@ module.exports.postEditProduct = (req, res, next) => {
             if(product.userId.toString() === req.user._id.toString()) {
                 product.title = productTitle;
                 product.price = productPrice;
-                if(productImage) product.imageUrl = productImage.path;
+                if(productImage) {
+                    fileHelper.deleteFile(product.imageUrl);
+                    product.imageUrl = productImage.path;
+                }
                 product.description = productDescription;
                 return product.save();
             } else {
@@ -189,12 +195,21 @@ module.exports.postEditProduct = (req, res, next) => {
 
 module.exports.postDeleteProduct = (req, res, next) => {
     const productId = req.body.productId;
+
     Product
-        // .findByIdAndRemove(productId) // deprecated without setting 'useFindAndModify: false'
-        // .findByIdAndDelete(productId)
-        .deleteOne({
-            _id: productId,
-            userId: req.user._id
+        .findById(productId)
+        .then(product => {
+            if(!product) {
+                return next(new Error('product not found'));
+            }
+            fileHelper.deleteFile(product.imageUrl);
+            return Product
+                // .findByIdAndRemove(productId) // deprecated without setting 'useFindAndModify: false'
+                // .findByIdAndDelete(productId)
+                .deleteOne({
+                    _id: product._id,
+                    userId: product.userId
+                });
         })
         .then(result => {
             if(result.deletedCount > 0) req.flash('success', 'Product successfully deleted.');
