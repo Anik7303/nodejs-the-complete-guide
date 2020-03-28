@@ -1,0 +1,13 @@
+<p>In the <code>postEditProduct</code> controller action, we already removed <code>imageUrl</code> from the data we return to the view if validation fails.</p><p><strong>You should do the same for </strong><code><strong>postAddProduct</strong></code><strong>. </strong></p><p>Your validation-failed responses should look like this:</p><pre class="prettyprint linenums">return res.status(422).render('admin/edit-product', {
+    pageTitle: 'Add Product',
+    path: '/admin/add-product',
+    editing: false,
+    hasError: true,
+    product: {
+        title: title,
+        price: price,
+        description: description
+    },
+    errorMessage: 'Attached file is not an image.',
+    validationErrors: []
+});</pre>
