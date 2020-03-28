@@ -3,6 +3,8 @@ const path = require('path');
 const fileHelper = require('../util/file');
 const Product = require('../models/product');
 
+const ITEMS_PER_PAGE = require('../util/general-keys').ITEMS_PER_PAGE;
+
 const { validationResult } = require('express-validator');
 
 module.exports.getAddProduct = (req, res, next) => {
@@ -16,6 +18,9 @@ module.exports.getAddProduct = (req, res, next) => {
 };
 
 module.exports.getProducts = (req, res, next) => {
+    let page = req.query.page || 1;
+    page = Math.max(page, 1);
+
     let errorMessage = req.flash('error');
     let alertMessage = req.flash('alert');
     let successMessage = req.flash('success');
@@ -34,18 +39,38 @@ module.exports.getProducts = (req, res, next) => {
         message = null;
         messageType = null;
     }
-    
+
+    let totalItems;
+
     Product
-        .find({
-            userId: req.user._id
+        .find()
+        .countDocuments()
+        .then(count => {
+            if(!count) return next(new Error('no product found for the user'));
+            totalItems = count;
+
+            return Product
+                .find({ userId: req.user._id })
+                .skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE);
         })
         .then(products => {
+            if(!products) return next(new Error('no products found for this user'));
+
+            const lastPage = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            const hasPreviousPage = page > 1;
+            const hasNextPage = page < lastPage;
+
             res.render('admin/product-list', {
                 pageTitle: 'All Products',
                 path: '/admin/products',
                 products: products,
                 message: message,
-                messageType: messageType
+                messageType: messageType,
+                currentPage: page,
+                hasPreviousPage: hasPreviousPage,
+                hasNextPage: hasNextPage,
+                lastPage: lastPage
             });
         })
         .catch(err => {
@@ -212,7 +237,7 @@ module.exports.postDeleteProduct = (req, res, next) => {
                 });
         })
         .then(result => {
-            if(result.deletedCount > 0) req.flash('success', 'Product successfully deleted.');
+            if(result && result.deletedCount > 0) req.flash('success', 'Product successfully deleted.');
             else req.flash('alert', 'You can not delete this product.');
             res.redirect('/admin/products');
         })
