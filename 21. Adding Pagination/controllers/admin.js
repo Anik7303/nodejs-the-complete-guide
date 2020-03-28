@@ -43,7 +43,7 @@ module.exports.getProducts = (req, res, next) => {
     let totalItems;
 
     Product
-        .find()
+        .find({ userId: req.user._id })
         .countDocuments()
         .then(count => {
             if(!count) return next(new Error('no product found for the user'));
