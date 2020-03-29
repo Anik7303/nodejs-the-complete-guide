@@ -28,6 +28,4 @@ router.post('/cart', isAuth, shopController.postCart);
 
 router.post('/cart-delete-item', isAuth, shopController.postDeleteCartProduct);
 
-// router.post('/create-order', isAuth, shopController.postOrder);
-
 module.exports = router;

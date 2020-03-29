@@ -28,9 +28,7 @@
                 var stripe = Stripe('pk_test_8qYpvKH5GxDkzgeGxkZgEIRV00RSEXdDNW');
                 var orderBtn = document.getElementById('order-btn');
                 orderBtn.addEventListener('click', function() {
-                    console.log('order btn clicked');
                     stripe.redirectToCheckout({ sessionId: '<%= sessionId %>' });
-                    console.log('order processed');
                 });
             </script>
         </div>
