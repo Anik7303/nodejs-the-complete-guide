@@ -17,8 +17,6 @@ module.exports.getIndex = (req, res, next) => {
         .find()
         .countDocuments()
         .then(count => {
-            if(!count) return next(new Error('no product found'));
-
             totalItems = count;
 
             return Product
@@ -27,8 +25,6 @@ module.exports.getIndex = (req, res, next) => {
                 .limit(ITEMS_PER_PAGE);
         })
         .then(products => {
-            if(!products) return next(new Error('no products found'));
-
             const currentPage = page;
             const lastPage = Math.ceil(totalItems / ITEMS_PER_PAGE);
             const hasPreviousPage = page > 1;
@@ -61,8 +57,6 @@ module.exports.getProducts = (req, res, next) => {
         .find()
         .countDocuments()
         .then(count => {
-            if(!count) return next(new Error('no product found'));
-
             totalItems = count;
 
             return Product
@@ -73,8 +67,6 @@ module.exports.getProducts = (req, res, next) => {
                 .limit(ITEMS_PER_PAGE);
         })
         .then(products => {
-            if(!products) return next(new Error('no product found'));
-
             const lastPage = Math.ceil(totalItems / ITEMS_PER_PAGE);
             const hasPreviousPage = page > 1;
             const hasNextPage = page < lastPage;

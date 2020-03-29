@@ -46,7 +46,6 @@ module.exports.getProducts = (req, res, next) => {
         .find({ userId: req.user._id })
         .countDocuments()
         .then(count => {
-            if(!count) return next(new Error('no product found for the user'));
             totalItems = count;
 
             return Product
@@ -55,8 +54,6 @@ module.exports.getProducts = (req, res, next) => {
                 .limit(ITEMS_PER_PAGE);
         })
         .then(products => {
-            if(!products) return next(new Error('no products found for this user'));
-
             const lastPage = Math.ceil(totalItems / ITEMS_PER_PAGE);
             const hasPreviousPage = page > 1;
             const hasNextPage = page < lastPage;
@@ -218,14 +215,14 @@ module.exports.postEditProduct = (req, res, next) => {
         });
 };
 
-module.exports.postDeleteProduct = (req, res, next) => {
-    const productId = req.body.productId;
+module.exports.deleteProduct = (req, res, next) => {
+    const productId = req.params.productId;
 
     Product
         .findById(productId)
         .then(product => {
             if(!product) {
-                return next(new Error('product not found'));
+                return res.status(500).json({ message: 'deleting product failed!' });
             }
             fileHelper.deleteFile(product.imageUrl);
             return Product
@@ -239,11 +236,9 @@ module.exports.postDeleteProduct = (req, res, next) => {
         .then(result => {
             if(result && result.deletedCount > 0) req.flash('success', 'Product successfully deleted.');
             else req.flash('alert', 'You can not delete this product.');
-            res.redirect('/admin/products');
+            res.status(200).json({ message: 'success' });
         })
         .catch(err => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+            return res. status(500).json({ message: 'deleting product failed!' });
         });
 };
