@@ -46,7 +46,6 @@ module.exports.getProducts = (req, res, next) => {
         .find({ userId: req.user._id })
         .countDocuments()
         .then(count => {
-            if(!count) return next(new Error('no product found for the user'));
             totalItems = count;
 
             return Product
@@ -55,8 +54,6 @@ module.exports.getProducts = (req, res, next) => {
                 .limit(ITEMS_PER_PAGE);
         })
         .then(products => {
-            if(!products) return next(new Error('no products found for this user'));
-
             const lastPage = Math.ceil(totalItems / ITEMS_PER_PAGE);
             const hasPreviousPage = page > 1;
             const hasNextPage = page < lastPage;
