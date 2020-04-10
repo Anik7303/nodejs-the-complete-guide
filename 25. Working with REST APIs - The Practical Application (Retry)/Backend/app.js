@@ -20,7 +20,7 @@ const fileStorage = multer.diskStorage({
             if(error) throw error;
             const parts = file.originalname.split('.');
             const extension = parts[parts.length - 1];
-            const filename = buffer.toString('hex') + extension;
+            const filename = buffer.toString('hex') + '.' + extension;
             callback(null, filename);
         });
     }

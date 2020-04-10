@@ -12,6 +12,7 @@ module.exports.getPosts = (req, res, next) => {
     Post
         .find()
         .then(posts => {
+            console.log(posts);
             if(posts) {
                 return res
                     .status(200)
@@ -65,8 +66,6 @@ module.exports.createPost = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-
-    return console.log(req.file);
 
     if(!req.file) {
         const error = new Error('No image provided');
