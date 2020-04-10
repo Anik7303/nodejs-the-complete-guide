@@ -56,7 +56,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-    .connect(keys.MONGODB_ATLAS_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(keys.MONGODB_ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
         if(result) app.listen(8080);
     })

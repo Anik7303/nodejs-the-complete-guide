@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
@@ -6,6 +9,11 @@ const throwError = (err) => {
     const error = new Error(err);
     if(!error.statusCode) error.statusCode = 500;
     next(error);
+}
+
+const clearImage = filePath => {
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath);
 }
 
 module.exports.getPosts = (req, res, next) => {
@@ -62,7 +70,7 @@ module.exports.createPost = (req, res, next) => {
     const content = req.body.content;
 
     if(!errors.isEmpty()) {
-        const error = new Error('Validation failed! Entered data is incorrect');
+        const error = new Error(errors.array().toString());
         error.statusCode = 422;
         throw error;
     }
@@ -94,5 +102,59 @@ module.exports.createPost = (req, res, next) => {
         })
         .catch(err => {
             throw err;
+        });
+};
+
+module.exports.updatePost = (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        const error = new Error(error.array().toString());
+        error.statusCode = 422;
+        next(error);
+    }
+
+    const postId = req.params.postId;
+    const title = req.body.title;
+    const content = req.body.content;
+    const imageUrl = req.body.image;
+    if(req.file) {
+        imageUrl = req.file.path;
+    }
+
+    Post
+        .findById(postId)
+        .then(post => {
+            if(!post) {
+                const error = new Error('No post found with id: ' + postId);
+            }
+
+            if(imageUrl !== post.imageUrl) {
+                clearImage(post.imageUrl);
+            }
+            
+            post.title = title;
+            post.content = content;
+            post.imageUrl = imageUrl;
+            return post.save();
+        })
+        .then(result => {
+            if(result) {
+                res
+                    .status(200)
+                    .json({
+                        message: 'Post updated!',
+                        post: result
+                    });
+            } else {
+                res
+                    .status(422)
+                    .json({
+                        message: 'Post update failed',
+                        post: {}
+                    });
+            }
+        })
+        .catch(err => {
+            throwError(err);
         });
 };
