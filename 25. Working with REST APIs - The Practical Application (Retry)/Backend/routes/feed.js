@@ -18,4 +18,7 @@ router.post('/post', feedValidator, feedController.createPost);
 // PUT /feed/post/?
 router.put('/post/:postId', feedValidator, feedController.updatePost);
 
+// DELETE /feed/post/?
+router.delete('/post/:postId', feedController.deletePost);
+
 module.exports = router;

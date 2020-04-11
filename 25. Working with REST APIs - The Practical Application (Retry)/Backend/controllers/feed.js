@@ -5,15 +5,15 @@ const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
 
-const throwError = (err) => {
+const throwError = (next, err) => {
     const error = new Error(err);
-    if(!error.statusCode) error.statusCode = 500;
+    error.statusCode = err.statusCode || 500;
     next(error);
 }
 
 const clearImage = filePath => {
-    filePath = path.join(__dirname, '..', filePath);
-    fs.unlink(filePath);
+    filePath = path.join(__dirname, '..', 'images', filePath);
+    fs.unlink(filePath, (err) => console.log(err));
 }
 
 module.exports.getPosts = (req, res, next) => {
@@ -38,7 +38,7 @@ module.exports.getPosts = (req, res, next) => {
             }
         })
         .catch(err => {
-            throwError(err);
+            throwError(next, err);
         });
 };
 
@@ -60,7 +60,7 @@ module.exports.getPost = (req, res, next) => {
                 });
         })
         .catch(err => {
-            throwError(err);
+            throwError(next, err);
         });
 };
 
@@ -84,7 +84,7 @@ module.exports.createPost = (req, res, next) => {
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: req.file.path,
+        imageUrl: req.file.filename,
         creator: { name: 'Anik' }
     });
 
@@ -116,9 +116,9 @@ module.exports.updatePost = (req, res, next) => {
     const postId = req.params.postId;
     const title = req.body.title;
     const content = req.body.content;
-    const imageUrl = req.body.image;
+    let imageUrl = req.body.image;
     if(req.file) {
-        imageUrl = req.file.path;
+        imageUrl = req.file.filename;
     }
 
     Post
@@ -135,6 +135,7 @@ module.exports.updatePost = (req, res, next) => {
             post.title = title;
             post.content = content;
             post.imageUrl = imageUrl;
+
             return post.save();
         })
         .then(result => {
@@ -155,6 +156,32 @@ module.exports.updatePost = (req, res, next) => {
             }
         })
         .catch(err => {
-            throwError(err);
+            throwError(next, err);
         });
+};
+
+module.exports.deletePost = (req, res, next) => {
+    const postId = req.params.postId;
+    let imageUrl;
+
+    Post
+        .findById(postId)
+        .then(post => {
+            // check user login validity
+            imageUrl = post.imageUrl;
+            return Post.findByIdAndRemove(postId);
+        })
+        .then(result => {
+            if(result) {
+                clearImage(imageUrl);
+                res
+                    .status(200)
+                    .json({ message: 'post deleted!' });
+            } else {
+                res
+                    .status(422)
+                    .json({ message: 'something went wrong, post deletion failed!'});
+            }
+        })
+        .catch(err => throwError(next, err));
 };
