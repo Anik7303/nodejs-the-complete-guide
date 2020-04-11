@@ -12,7 +12,7 @@ const throwError = (next, err) => {
 }
 
 const clearImage = filePath => {
-    filePath = path.join(__dirname, '..', 'images', filePath);
+    filePath = path.join(__dirname, '..', filePath);
     fs.unlink(filePath, (err) => console.log(err));
 }
 
@@ -82,8 +82,9 @@ module.exports.createPost = (req, res, next) => {
     const content = req.body.content;
 
     if(!errors.isEmpty()) {
-        const error = new Error(errors.array().toString());
+        const error = new Error('Validation failed!');
         error.statusCode = 422;
+        error.data = errors.array();
         throw error;
     }
 
@@ -96,13 +97,14 @@ module.exports.createPost = (req, res, next) => {
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: req.file.filename,
+        imageUrl: req.file.path.replace('\\', '/'),
         creator: { name: 'Anik' }
     });
 
     post
         .save()
         .then(result => {
+            console.log(result);
             if(result) {
                 return res
                     .status(201) // status code 201 => sucess and created a resource
@@ -130,7 +132,7 @@ module.exports.updatePost = (req, res, next) => {
     const content = req.body.content;
     let imageUrl = req.body.image;
     if(req.file) {
-        imageUrl = req.file.filename;
+        imageUrl = req.file.path.replace('\\', '/');
     }
 
     Post

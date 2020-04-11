@@ -38,7 +38,7 @@ const fileFilter = (req, file, callback) => {
 
 // app.use(bodyParser.urlencoded({ extended: false })); // for 'x-www-form-urlencoded' encoded data submitted through <form>
 app.use(bodyParser.json()); // for 'application/json' encoded data
-app.use(express.static(path.join(__dirname, 'images')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')); // for form enctype = 'multipart/form'
 
 app.use((req, res, next) => {
