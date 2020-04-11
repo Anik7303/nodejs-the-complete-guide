@@ -167,6 +167,11 @@ module.exports.deletePost = (req, res, next) => {
     Post
         .findById(postId)
         .then(post => {
+            if(!post) {
+                const error = new Error('post with id: ' + postId + ' no found!');
+                error.statusCode = 422;
+                next(error);
+            }
             // check user login validity
             imageUrl = post.imageUrl;
             return Post.findByIdAndRemove(postId);
