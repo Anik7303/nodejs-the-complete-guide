@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 
 const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
 const keys = require('./keys');
 
 const app = express();
@@ -48,18 +49,35 @@ app.use((req, res, next) => {
 });
 
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {
     console.log(error);
     const status = error.statusCode || 500;
-    res.status(status).json({ message: error.message });
+    res.status(status).json({ message: error.message, data: error.data });
 });
 
+const mongooseConnectOptions = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+};
+
 mongoose
-    .connect(keys.MONGODB_ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(keys.MONGODB_LOCAL_URI, mongooseConnectOptions)
     .then(result => {
-        if(result) app.listen(8080);
+        if(!result) {
+            throw new Error('local mongo server not working!');
+        }
+        app.listen(8080);
     })
     .catch(err => {
-        if(err) console.log(err);
+        console.log(err);
+        mongoose
+            .connect(keys.MONGODB_ATLAS_URI, mongooseConnectOptions)
+            .then(result => {
+                if(result) app.listen(8080);
+            })
+            .catch(err => console.log(err));
     });

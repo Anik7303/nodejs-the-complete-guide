@@ -17,29 +17,41 @@ const clearImage = filePath => {
 }
 
 module.exports.getPosts = (req, res, next) => {
+    const page = req.query.page || 1;
+    const perPage = 2;
+    let totalItems;
+
     Post
         .find()
+        .countDocuments()
+        .then(count => {
+            totalItems = count || 0;
+
+            return Post
+                .find()
+                .skip((page - 1) * perPage)
+                .limit(perPage);
+        })
         .then(posts => {
-            console.log(posts);
             if(posts) {
-                return res
+                res
                     .status(200)
                     .json({
                         message: 'Posts fetched successfully',
-                        posts: posts
+                        posts: posts,
+                        totalItems: totalItems
                     });
             } else {
-                return res
+                res
                     .status(200)
                     .json({
                         message: 'No post found',
-                        posts: []
-                    });
+                        posts: [],
+                        totalItems: totalItems
+                    })
             }
         })
-        .catch(err => {
-            throwError(next, err);
-        });
+        .catch(err => throwError(next, err));
 };
 
 module.exports.getPost = (req, res, next) => {
@@ -174,7 +186,7 @@ module.exports.deletePost = (req, res, next) => {
             }
             // check user login validity
             imageUrl = post.imageUrl;
-            return Post.findByIdAndRemove(postId);
+            return Post.findOneAndRemove(postId);
         })
         .then(result => {
             if(result) {
