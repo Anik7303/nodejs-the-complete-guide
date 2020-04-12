@@ -4,6 +4,7 @@ const path = require('path');
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
+const User = require('../models/user');
 
 const throwError = (next, err) => {
     const error = new Error(err);
@@ -78,8 +79,6 @@ module.exports.getPost = (req, res, next) => {
 
 module.exports.createPost = (req, res, next) => {
     const errors = validationResult(req);
-    const title = req.body.title;
-    const content = req.body.content;
 
     if(!errors.isEmpty()) {
         const error = new Error('Validation failed!');
@@ -94,28 +93,50 @@ module.exports.createPost = (req, res, next) => {
         throw error;
     }
 
-    const post = new Post({
-        title: title,
-        content: content,
-        imageUrl: req.file.path.replace('\\', '/'),
-        creator: { name: 'Anik' }
-    });
+    const title = req.body.title;
+    const content = req.body.content;
+    const imageUrl = req.file.path.replace('\\', '/');
 
-    post
-        .save()
+    let creator;
+    let post;
+
+    User
+        .findById(req.userId)
+        .then(user => {
+            if(user) {
+                creator = user;
+                post = new Post({
+                    title: title,
+                    content: content,
+                    imageUrl: imageUrl,
+                    creator: user
+                });
+    
+                return post.save();
+            }
+            return null;
+        })
         .then(result => {
-            console.log(result);
+            if(result) {
+                creator.posts.push(post);
+                return creator.save();
+            }
+            return null;
+        })
+        .then(result => {
             if(result) {
                 return res
-                    .status(201) // status code 201 => sucess and created a resource
+                    .status(201) // status code 201 => success and created a resource
                     .json({
-                        message: 'Post created successfully',
-                        post: result
+                        message: 'Post creation successful',
+                        post: post,
+                        creator: { _id: creator._id, name: creator.name }
                     });
             }
         })
         .catch(err => {
-            throw err;
+            if(!err.statusCode) err.statusCode = 500;
+            next(err);
         });
 };
 
@@ -140,6 +161,14 @@ module.exports.updatePost = (req, res, next) => {
         .then(post => {
             if(!post) {
                 const error = new Error('No post found with id: ' + postId);
+                error.statusCode = 404;
+                throw error;
+            }
+
+            if(post.creator._id.toString() !== req.userId.toString()) {
+                const error = new Error('Not authorized to edit post');
+                error.statusCode = 403;
+                throw error;
             }
 
             if(imageUrl !== post.imageUrl) {
@@ -188,6 +217,13 @@ module.exports.deletePost = (req, res, next) => {
             }
             // check user login validity
             imageUrl = post.imageUrl;
+
+            if(post.creator._id.toString() !== req.userId.toString()) {
+                const error = new Error('Not authorized to delete this post');
+                error.statusCode = 403;
+                throw error;
+            }
+
             return Post.findOneAndRemove(postId);
         })
         .then(result => {
