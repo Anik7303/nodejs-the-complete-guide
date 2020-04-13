@@ -6,9 +6,13 @@
 ```
 module.exports.PORT = 3000;
 module.exports.SESSION_SECRET_KEY = <session_secret_key>;
+module.exports.TOKEN_SECRET_KEY = <json_web_token_secret_key>;
 
 // database
-module.exports.MONGODB_URI = <mongodb_database_connection_uri>;
+// for local server
+module.exports.MONGODB_LOCAL_URI = <mongodb_database_connection_uri>;
+// for mongodb atlas
+module.exports.MONGODB_ATLAS_URI = <mongodb_database_connection_uri>;
 
 // email
 module.exports.EMAIL_HOST = 'smtp.ethereal.email';
@@ -17,5 +21,5 @@ module.exports.EMAIL_SECURE = false;
 module.exports.ETHEREAL_USER = <ethereal_user>;
 module.exports.ETHEREAL_PASS = <password>;
 
-module.exports.EMAIL_SENDER = <email_address>;
+module.exports.EMAIL_SENDER = <sender_email_address>;
 ```
