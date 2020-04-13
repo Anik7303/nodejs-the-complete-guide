@@ -2,6 +2,12 @@
   "name": "node-complete-social-network-prep",
   "version": "0.1.0",
   "private": true,
+  "dependencies": {
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "2.0.4"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -16,11 +22,5 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ],
-  "dependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.4.1"
-  }
+  ]
 }

@@ -6,32 +6,40 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
 
-const keys = require('./keys');
 const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
+const keys = require('./keys');
 
 const app = express();
 
 const fileStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'images');
+    destination: (req, file, callback) => {
+        callback(null, 'images');
     },
-    filename: (req, file, cb) => {
-        crypto.randomBytes(10, (err, buffer) => {
-            if(err) throw err;
-            const filename = buffer.toString('hex') + '-' + file.originalname;
-            cb(null, filename);
+    filename: (req, file, callback) => {
+        crypto.randomBytes(10, (error, buffer) => {
+            if(error) throw error;
+            const parts = file.originalname.split('.');
+            const extension = parts[parts.length - 1];
+            const filename = buffer.toString('hex') + '.' + extension;
+            callback(null, filename);
         });
     }
 });
 
-const fileFilter = (req, file, cb) => {
-    const supportedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-    if(supportedTypes.includes(file.mimetype)) {
-        cb(null, true);
+const fileFilter = (req, file, callback) => {
+    const allowedExtensions = ['image/jpg', 'image/jpeg', 'image/png'];
+    if(allowedExtensions.includes(file.mimetype)) {
+        callback(null, true);
     } else {
-        cb(null, false);
+        return callback(null, false);
     }
 };
+
+// app.use(bodyParser.urlencoded({ extended: false })); // for 'x-www-form-urlencoded' encoded data submitted through <form>
+app.use(bodyParser.json()); // for 'application/json' encoded data
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')); // for form enctype = 'multipart/form'
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,24 +48,36 @@ app.use((req, res, next) => {
     next();
 });
 
-// app.use(bodyParser.urlencoded({ extended: false })); // for 'x-www-form-urlencoded' encoded data submitted through <form>
-app.use(bodyParser.json()); // for 'application/json' encoded data
-app.use(express.static(path.join(__dirname, 'images')));
-app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
-
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {
     console.log(error);
-    const statusCode = error.statusCode || 500;
-    const message = error.message;
-    res.status(statusCode).json({ message: message });
+    const status = error.statusCode || 500;
+    res.status(status).json({ message: error.message, data: error.data });
 });
 
+const mongooseConnectOptions = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+};
+
 mongoose
-    .connect(keys.MONGODB_ATLAS_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(keys.MONGODB_LOCAL_URI, mongooseConnectOptions)
     .then(result => {
-        if(!result) throw new Error(result);
+        if(!result) {
+            throw new Error('local mongo server not working!');
+        }
         app.listen(8080);
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+        console.log(err);
+        mongoose
+            .connect(keys.MONGODB_ATLAS_URI, mongooseConnectOptions)
+            .then(result => {
+                if(result) app.listen(8080);
+            })
+            .catch(err => console.log(err));
+    });
