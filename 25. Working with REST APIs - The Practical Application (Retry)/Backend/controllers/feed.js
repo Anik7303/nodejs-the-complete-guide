@@ -7,9 +7,8 @@ const Post = require('../models/post');
 const User = require('../models/user');
 
 const throwError = (next, err) => {
-    const error = new Error(err);
-    error.statusCode = err.statusCode || 500;
-    next(error);
+    err.statusCode = err.statusCode || 500;
+    next(err);
 }
 
 const clearImage = filePath => {
@@ -225,6 +224,13 @@ module.exports.deletePost = (req, res, next) => {
             }
 
             return Post.findOneAndRemove(postId);
+        })
+        .then(result => {
+            return User.findById(req.userId);
+        })
+        .then(user => {
+            user.posts.pull(postId);
+            return user.save();
         })
         .then(result => {
             if(result) {

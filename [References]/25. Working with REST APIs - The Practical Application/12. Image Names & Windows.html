@@ -1,0 +1,24 @@
+<p>In the next lecture, you'll learn how to upload images in a REST world.</p><p>One <strong>important</strong> note for<strong> Windows users only</strong>:</p><p>On Windows, the file name that includes a date string is not really supported and will lead to some strange CORS errors. Adjust your code like this to avoid such errors:</p><p>Instead of</p><pre class="prettyprint linenums">const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'images');
+    },
+    filename: function(req, file, cb) {
+        cb(null, new Date().toISOString() + file.originalname);
+    }
+});</pre><p>which we'll write in the next lecture, you should use this slightly modified version:</p><pre class="prettyprint linenums">const uuidv4 = require('uuid/v4')
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'images');
+    },
+    filename: function(req, file, cb) {
+        cb(null, uuidv4())
+    }
+});</pre><p>For this, install the uuid package by running:</p><p><code>npm install --save uuid</code></p><p>To ensure that images can be loaded correctly on the frontend, you should also change the logic in the <code>feed.js</code> controller:</p><p>in <code>createPosts</code>, change the <code>imageUrl</code> const:</p><pre class="prettyprint linenums">exports.createPost = (req, res, next) =&gt; {
+    ...
+    const imageUrl = req.file.path.replace("\\" ,"/");
+    ...
+}</pre><p>and in <code>updatePost</code> (once we added that later):</p><pre class="prettyprint linenums">exports.updatePost = (req, res, next) =&gt; {
+    ...
+    imageUrl = req.file.path.replace("\\","/");
+}</pre><p>On macOS and Linux, you can ignore that and stick to the code I show in the videos.</p>
