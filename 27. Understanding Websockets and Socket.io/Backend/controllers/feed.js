@@ -116,16 +116,14 @@ module.exports.createPost = async (req, res, next) => {
         }
 
         user.posts.push(post);
-        result = await user.save();
-        if(result) {
-            res
-                .status(201)
-                .json({
-                    message: 'Post creation successful',
-                    post: post,
-                    creator: user
-                });
-        }
+        await user.save();
+
+        io.getIO().emit('posts', { action: 'create', post: { ...post._doc, creator: { _id: user._id, name: user.name } } });
+        res.status(201).json({
+            message: 'Post creation successful',
+            post: post,
+            creator: user
+        });
     } catch(error) {
         throwError(next, error);
     }
