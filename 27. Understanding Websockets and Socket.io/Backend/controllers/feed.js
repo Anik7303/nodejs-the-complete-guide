@@ -3,6 +3,7 @@ const path = require('path');
 
 const { validationResult } = require('express-validator');
 
+const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user');
 
@@ -76,16 +77,16 @@ module.exports.createPost = async (req, res, next) => {
     const errors = validationResult(req);
 
     if(!errors.isEmpty()) {
-        const error = new Error('Validation failed!');
-        error.statusCode = 422;
-        error.data = errors.array();
-        throw error;
+        const error1 = new Error('Validation failed!');
+        error1.statusCode = 422;
+        error1.data = errors.array();
+        throw error1;
     }
 
     if(!req.file) {
-        const error = new Error('No image provided');
-        error.statusCode = 422;
-        throw error;
+        const error2 = new Error('No image provided');
+        error2.statusCode = 422;
+        throw error2;
     }
 
     const title = req.body.title;
@@ -99,16 +100,13 @@ module.exports.createPost = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        const creator = user;
 
         const post = new Post({
             title: title,
             content: content,
             imageUrl: imageUrl,
-            creator: user
+            creator: user._id
         });
-
-        const createdPost = post;
 
         let result = await post.save();
         if(!result) {
@@ -117,15 +115,15 @@ module.exports.createPost = async (req, res, next) => {
             throw error;
         }
 
-        user.posts.push(createdPost);
+        user.posts.push(post);
         result = await user.save();
         if(result) {
             res
                 .status(201)
                 .json({
                     message: 'Post creation successful',
-                    post: createdPost,
-                    creator: creator
+                    post: post,
+                    creator: user
                 });
         }
     } catch(error) {
@@ -220,6 +218,6 @@ module.exports.deletePost = async (req, res, next) => {
                     .json({ message: 'Something went wrong, post deletion failed!'});
             }
     } catch(error) {
-        throwError(error);
+        throwError(next, error);
     }
 };

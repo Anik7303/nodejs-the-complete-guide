@@ -71,9 +71,9 @@ mongoose
             throw new Error('local mongo server not working!');
         }
         const server  = app.listen(keys.PORT);
-        const io = require('socket.io')(server);
+        const io = require('./socket').init(server);
         io.on('connection', socket => {
-            console.log('Client connected');
+            console.log('Client connected: ' + socket);
         });
     })
     .catch(err => {
@@ -81,7 +81,14 @@ mongoose
         mongoose
             .connect(keys.MONGODB_ATLAS_URI, mongooseConnectOptions)
             .then(result => {
-                if(result) app.listen(keys.PORT);
+                if(!result) {
+                    throw new Error('mongo atlas server not working');
+                }
+                const server = app.listen(keys.PORT);
+                const io = require('./socket').init(server);
+                io.on('connection', socket => {
+                    console.log('Client connected: ' + socket);
+                });
             })
             .catch(err => console.log(err));
     });

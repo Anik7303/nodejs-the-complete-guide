@@ -99,16 +99,13 @@ module.exports.createPost = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        const creator = user;
 
         const post = new Post({
             title: title,
             content: content,
             imageUrl: imageUrl,
-            creator: user
+            creator: user._id
         });
-
-        const createdPost = post;
 
         let result = await post.save();
         if(!result) {
@@ -117,15 +114,15 @@ module.exports.createPost = async (req, res, next) => {
             throw error;
         }
 
-        user.posts.push(createdPost);
+        user.posts.push(post);
         result = await user.save();
         if(result) {
             res
                 .status(201)
                 .json({
                     message: 'Post creation successful',
-                    post: createdPost,
-                    creator: creator
+                    post: post,
+                    creator: user
                 });
         }
     } catch(error) {
