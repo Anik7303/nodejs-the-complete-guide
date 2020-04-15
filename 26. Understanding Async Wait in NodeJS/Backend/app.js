@@ -70,14 +70,14 @@ mongoose
         if(!result) {
             throw new Error('local mongo server not working!');
         }
-        app.listen(8080);
+        app.listen(keys.PORT);
     })
     .catch(err => {
         console.log(err);
         mongoose
             .connect(keys.MONGODB_ATLAS_URI, mongooseConnectOptions)
             .then(result => {
-                if(result) app.listen(8080);
+                if(result) app.listen(keys.PORT);
             })
             .catch(err => console.log(err));
     });

@@ -27,7 +27,7 @@ module.exports.getPosts = async (req, res, next) => {
             .populate('creator', '_id name email')
             .skip((page - 1) * perPage)
             .limit(perPage);
-        console.log(posts);
+
         if(posts) {
             res
                 .status(200)
@@ -99,6 +99,7 @@ module.exports.createPost = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
+        const creator = user;
 
         const post = new Post({
             title: title,
@@ -107,6 +108,8 @@ module.exports.createPost = async (req, res, next) => {
             creator: user
         });
 
+        const createdPost = post;
+
         let result = await post.save();
         if(!result) {
             const error = new Error('Post creation unsuccessful');
@@ -114,15 +117,15 @@ module.exports.createPost = async (req, res, next) => {
             throw error;
         }
 
-        user.posts.push(post);
+        user.posts.push(createdPost);
         result = await user.save();
         if(result) {
             res
                 .status(201)
                 .json({
                     message: 'Post creation successful',
-                    post: post,
-                    creator: user
+                    post: createdPost,
+                    creator: creator
                 });
         }
     } catch(error) {
