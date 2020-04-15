@@ -106,4 +106,44 @@ module.exports.login = async (req, res, next) => {
         error.statusCode = error.statusCode || 500;
         next(error);
     }
-}
+};
+
+module.exports.getUserStatus = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.userId);
+        if(!user) {
+            const error = new Error('User not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        res
+            .status(200)
+            .json({ status: user.status });
+    } catch(error) {
+        error.statusCode = error.statusCode || 500;
+        next(error);
+    }
+};
+
+module.exports.updateUserStatus = async (req, res, next) => {
+    const newStatus = req.body.status;
+
+    try {
+        const user = await User.findById(req.userId);
+        if(!user) {
+            const error = new Error('User not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        user.status = newStatus;
+        await user.save();
+        res
+            .status(201)
+            .json({ message: 'User status updated' });
+    } catch(error) {
+        error.statusCode = error.statusCode || 500;
+        next(error);
+    }
+};

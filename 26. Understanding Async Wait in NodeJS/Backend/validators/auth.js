@@ -31,3 +31,10 @@ module.exports.login = [
     body('password')
         .isLength({ min: 8 })
 ];
+
+module.exports.userStatus = [
+    body('status')
+        .trim()
+        .not()
+        .isEmpty()
+];

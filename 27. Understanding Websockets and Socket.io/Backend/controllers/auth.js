@@ -51,7 +51,6 @@ module.exports.login = async (req, res, next) => {
 
     const email = req.body.email;
     const password = req.body.password;
-    let loadedUser;
 
     try {
         const user = await User.findOne({ email: email });
