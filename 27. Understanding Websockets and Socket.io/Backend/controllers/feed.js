@@ -26,6 +26,7 @@ module.exports.getPosts = async (req, res, next) => {
             .countDocuments();
         const posts = await Post.find()
             .populate('creator', '_id name email')
+            .sort({ createdAt: -1 })
             .skip((page - 1) * perPage)
             .limit(perPage);
 
@@ -147,7 +148,7 @@ module.exports.updatePost = async (req, res, next) => {
     }
 
     try {
-        const post = await Post.findById(postId);
+        const post = await Post.findById(postId).populate('creator', '_id name email');
     
         if(!post) {
             const error = new Error('No post found with id: ' + postId);
@@ -167,6 +168,9 @@ module.exports.updatePost = async (req, res, next) => {
         post.imageUrl = imageUrl;
 
         const result = await post.save();
+        console.log(post);
+
+        io.getIO().emit('posts', { action: 'update', post: post });
 
         res
             .status(201)
@@ -207,14 +211,15 @@ module.exports.deletePost = async (req, res, next) => {
 
         if(result) {
             clearImage(imageUrl);
+            io.getIO().emit('posts', { action: 'delete', post: postId })
             res
-                    .status(200)
-                    .json({ message: 'Post deleted!' });
-            } else {
-                res
-                    .status(422)
-                    .json({ message: 'Something went wrong, post deletion failed!'});
-            }
+                .status(200)
+                .json({ message: 'Post deleted!' });
+        } else {
+            res
+                .status(422)
+                .json({ message: 'Something went wrong, post deletion failed!'});
+        }
     } catch(error) {
         throwError(next, error);
     }
