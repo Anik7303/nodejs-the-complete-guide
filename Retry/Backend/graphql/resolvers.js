@@ -292,5 +292,15 @@ module.exports = {
         checkUser(user);
 
         return user.status;
+    },
+    updateUserStatus: async ({ status }, req) => {
+        checkAuthentication(req);
+
+        const user = await User.findById(req.userId);
+        checkUser(user);
+
+        user.status = status;
+        await user.save();
+        return true;
     }
 };

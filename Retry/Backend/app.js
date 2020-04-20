@@ -108,20 +108,20 @@ const mongooseConnectOptions = {
 };
 
 mongoose
-    .connect(keys.MONGODB_LOCAL_URI, mongooseConnectOptions)
+    .connect(keys.MONGODB_ATLAS_URI, mongooseConnectOptions)
     .then(result => {
         if(!result) {
-            throw new Error('local mongo server not working!');
+            throw new Error('MongoDB Atlas server not working!');
         }
         app.listen(keys.PORT);
     })
     .catch(err => {
         console.log(err);
         mongoose
-            .connect(keys.MONGODB_ATLAS_URI, mongooseConnectOptions)
+            .connect(keys.MONGODB_LOCAL_URI, mongooseConnectOptions)
             .then(result => {
                 if(!result) {
-                    throw new Error('MongoDB Atlas server not working!');
+                    throw new Error('local mongo server not working!');
                 }
                 app.listen(keys.PORT);
             })
