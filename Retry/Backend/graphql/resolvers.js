@@ -284,23 +284,39 @@ module.exports = {
 
         return true;
     },
-    getUserStatus: async function(args, req) {
-        // checkAuthentication(req);
-
-        console.log(req.userId);
-        const user = await User.findById(req.userId);
-        checkUser(user);
-
-        return user.status;
-    },
-    updateUserStatus: async ({ status }, req) => {
+    user: async (args, req) => {
         checkAuthentication(req);
 
         const user = await User.findById(req.userId);
         checkUser(user);
 
-        user.status = status;
-        await user.save();
-        return true;
+        return {
+            ...user._doc,
+            _id: user._doc._id.toString()
+        };
+    },
+    updateUser: async ({ userInput }, req) => {
+        checkAuthentication(req);
+
+        const user = await User.findById(req.userId);
+        checkUser(user);
+
+        if(userInput.name) {
+            user.name = userInput.name;
+        }
+        if(userInput.email) {
+            user.email = userInput.email;
+        }
+        if(userInput.password) {
+            user.password = await bcrypt.hash(userInput.password, 12);
+        }
+        if(userInput.status) {
+            user.status = userInput.status;
+        }
+        const updatedUser = await user.save();
+        return {
+            ...updatedUser._doc,
+            _id: updatedUser._doc._id.toString()
+        };
     }
 };

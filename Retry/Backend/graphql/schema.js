@@ -48,12 +48,19 @@ module.exports = buildSchema(`
         imageUrl: String!
     }
 
+    input UserData {
+        name: String
+        email: String
+        password: String
+        status: String
+    }
+
     type RootQuery {
         hello: String!
         login(loginInput: LoginInputData): AuthData!
         posts(page: Int): PostData!
         post(postId: ID!): Post!
-        getUserStatus: String!
+        user: User!
     }
 
     type RootMutation {
@@ -61,7 +68,7 @@ module.exports = buildSchema(`
         createPost(postInput: PostInputData): Post!
         updatePost(postId: ID!, postInput: PostInputData!): Post!
         deletePost(postId: ID!): Boolean
-        updateUserStatus(status: String!): Boolean
+        updateUser(userInput: UserData!): User!
     }
 
     schema {
