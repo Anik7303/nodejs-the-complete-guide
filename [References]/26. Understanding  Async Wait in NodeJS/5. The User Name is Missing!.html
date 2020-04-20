@@ -1,0 +1,16 @@
+<p>Maybe you noticed that on the frontend,<strong> the username is missing</strong>.</p><p>We'll fix that in the next modules but you can also fix it right now of course.</p><p>The reason for it missing is that I accidentally removed the <code>populate('creator')</code> step when fetching the post data in our controller action.</p><p>Example:</p><p>When fetching posts, this snippet:</p><pre class="prettyprint linenums">Post.find()
+    .countDocuments()
+    .then(count =&gt; {
+      totalItems = count;
+      return Post.find()
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage);
+    })</pre><p>should become</p><pre class="prettyprint linenums">Post.find()
+    .countDocuments()
+    .then(count =&gt; {
+      totalItems = count;
+      return Post.find()
+        .populate('creator')
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage);
+    })</pre>

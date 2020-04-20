@@ -1,0 +1,22 @@
+<p>Currently, when adding a new post with only one post being loaded, we end up with one post on the starting page (instead of the expected two posts).</p><p>We'll fix that later of course but you can already go ahead and make the required adjustment on your own.</p><p>We have to adjust our "add a post" code in the frontend to handle post creation and pagination correctly:</p><pre class="prettyprint linenums">this.setState(prevState =&gt; {
+    let updatedPosts = [...prevState.posts];
+    if (prevState.editPost) {
+        const postIndex = prevState.posts.findIndex(
+            p =&gt; p._id === prevState.editPost._id
+        );
+        updatedPosts[postIndex] = post;
+    } else {
+        if (prevState.posts.length &gt;= 2) {
+            updatedPosts.pop();
+        }
+        updatedPosts.unshift(post);
+    }
+    return {
+        posts: updatedPosts,
+        isEditing: false,
+        editPost: null,
+        editLoading: false
+    };
+});</pre><p>The following if block was added:</p><pre class="prettyprint linenums">if (prevState.posts.length &gt;= 2) {
+    updatedPosts.pop();
+}</pre>
