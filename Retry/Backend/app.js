@@ -12,6 +12,7 @@ const keys = require('./keys');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 const auth = require('./middlewares/auth');
+const { clearImage } = require('./utils/file');
 
 const app = express();
 
@@ -68,8 +69,7 @@ app.put('/post-image', (req, res, next) => {
             .json({ message: 'No image provided' });
     }
     if(req.body.oldPath) {
-        const filePath = path.join(__dirname, req.body.oldPath);
-        fs.unlink(filePath, err => console.log(err));
+        clearImage(req.body.oldPath);
     }
     return res
         .status(201)

@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Post = require('../models/post');
 const keys = require('../keys');
+const { clearImage } = require('../utils/file');
 
 const checkAuthentication = (req) => {
     if(!req.isAuth) {
@@ -39,11 +40,6 @@ const checkUserAccess = (post, req) => {
         error.statusCode = 403;
         throw error;
     }
-};
-
-const clearImage = (filePath) => {
-    const imagePath = path.join(__dirname, '..', filePath);
-    fs.unlink(imagePath, err => console.log(err));
 };
 
 module.exports = {
@@ -271,7 +267,7 @@ module.exports = {
     deletePost: async function({ postId }, req) {
         checkAuthentication(req);
 
-        const post = await Post.findById(postId);
+        const post = await Post.findById(postId).populate('creator', '_id name');
         const imageUrl = post.imageUrl;
 
         checkUserAccess(post, req);
@@ -287,5 +283,14 @@ module.exports = {
         clearImage(imageUrl);
 
         return true;
+    },
+    getUserStatus: async function(args, req) {
+        // checkAuthentication(req);
+
+        console.log(req.userId);
+        const user = await User.findById(req.userId);
+        checkUser(user);
+
+        return user.status;
     }
 };
