@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -5,6 +8,43 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Post = require('../models/post');
 const keys = require('../keys');
+
+const checkAuthentication = (req) => {
+    if(!req.isAuth) {
+        const error = new Error('Not Authenticated');
+        error.statusCode = 401;
+        throw error;
+    }
+};
+
+const checkUser = (user) => {
+    if(!user) {
+        const error = new Error('User not found');
+        error.statusCode = 404;
+        throw error;
+    }
+};
+
+const checkPost = (post) => {
+    if(!post) {
+        const error = new Error('Post not found');
+        error.statusCode = 404;
+        throw error;
+    }
+};
+
+const checkUserAccess = (post, req) => {
+    if(post.creator._id.toString() !== req.userId.toString()) {
+        const error = new Error('User not authorized to edit post');
+        error.statusCode = 403;
+        throw error;
+    }
+};
+
+const clearImage = (filePath) => {
+    const imagePath = path.join(__dirname, '..', filePath);
+    fs.unlink(imagePath, err => console.log(err));
+};
 
 module.exports = {
     hello: function() {
@@ -65,11 +105,7 @@ module.exports = {
         }
 
         const user = await User.findOne({ email: loginInput.email });
-        if(!user) {
-            const error = new Error('User with this email not found');
-            error.statusCode = 401;
-            throw error;
-        }
+        checkUser(user);
 
         const isEqual = await bcrypt.compare(loginInput.password, user.password);
         if(!isEqual) {
@@ -93,11 +129,8 @@ module.exports = {
         }
     },
     createPost: async function({ postInput }, req) {
-        if(!req.isAuth) {
-            const error = new Error('Not Authenticated');
-            error.statusCode = 422;
-            throw error;
-        }
+        checkAuthentication(req);
+
         const errors = [];
         if(validator.isEmpty(postInput.title) || !validator.isLength(postInput.title, { min: 5 })) {
             errors.push('Title should be atleast 5 characters long');
@@ -116,6 +149,8 @@ module.exports = {
         }
 
         const user = await User.findById(req.userId);
+        checkUser(user);
+
         const post = new Post({
             title: postInput.title,
             content: postInput.content,
@@ -139,15 +174,19 @@ module.exports = {
             }
         };
     },
-    posts: async function(args, req) {
-        if(!req.isAuth) {
-            const error = new Error('Not Authenticated');
-            error.statusCode = 422;
-            throw error;
-        }
+    posts: async function({ page }, req) {
+        checkAuthentication(req);
 
-        const totalItems = await Post.find().countDocuments();
-        const posts = await Post.find().populate('creator').sort({ createdAt: -1 });
+        page = page || 1;
+        const postPerPage = 2;
+
+        const totalItems = await Post.find()
+            .countDocuments();
+        const posts = await Post.find()
+            .populate('creator')
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * postPerPage)
+            .limit(postPerPage);
         if(totalItems <= 0) {
             return {
                 posts: [],
@@ -169,5 +208,84 @@ module.exports = {
             }),
             totalPosts: totalItems
         };
+    },
+    post: async function({ postId }, req) {
+        checkAuthentication(req);
+
+        const post = await Post.findById(postId).populate('creator');
+        checkPost(post);
+        
+        return {
+            ...post._doc,
+            _id: post._doc._id.toString(),
+            createdAt: post._doc.createdAt.toISOString(),
+            updatedAt: post._doc.updatedAt.toISOString(),
+            creator: {
+                ...post._doc.creator._doc,
+                _id: post._doc.creator._doc._id.toString(),
+                posts: post._doc.creator._doc.posts.map(post => post.toString())
+            }
+        };
+    },
+    updatePost: async function({ postId, postInput }, req) {
+        checkAuthentication(req);
+
+        const post = await Post.findById(postId).populate('creator');
+        checkPost(post);
+
+        checkUserAccess(post, req);
+
+        const errors = [];
+        if(validator.isEmpty(postInput.title) || !validator.isLength(postInput.title, { min: 5 })) {
+            errors.push('Title should be atleast 5 characters long');
+        }
+        if(validator.isEmpty(postInput.content) || !validator.isLength(postInput.content, { min: 5 })) {
+            errors.push('Content should be atleast 5 characters long');
+        }
+        if(errors.length > 0) {
+            const error = new Error('Validation failed');
+            error.data = errors;
+            error.statusCode = 422;
+            throw error;
+        }
+
+        post.title = postInput.title;
+        post.content = postInput.content;
+        if(postInput.imageUrl !== 'undefined') {
+            post.imageUrl = postInput.imageUrl;
+        }
+
+        const updatedPost = await post.save();
+
+        return {
+            ...updatedPost._doc,
+            _id: updatedPost._doc._id.toString(),
+            createdAt: updatedPost._doc.createdAt.toISOString(),
+            updatedAt: updatedPost._doc.updatedAt.toISOString(),
+            creator: {
+                ...updatedPost._doc.creator._doc,
+                _id: updatedPost._doc.creator._doc._id.toString()
+            }
+        };
+    },
+    deletePost: async function({ postId }, req) {
+        checkAuthentication(req);
+
+        const post = await Post.findById(postId);
+        const imageUrl = post.imageUrl;
+
+        checkUserAccess(post, req);
+
+        await post.remove();
+
+        const user = await User.findById(req.userId);
+        checkUser(user);
+
+        user.posts.pull(postId);
+        await user.save();
+
+        clearImage(imageUrl);
+
+        return true;
     }
 };

@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 
 const express = require('express');
@@ -55,6 +56,26 @@ app.use((req, res, next) => {
 
 app.use(auth);
 
+app.put('/post-image', (req, res, next) => {
+    if(!req.isAuth) {
+        const error = new Error('Not authenticated');
+        error.statusCode = 422;
+        throw error;
+    }
+    if(!req.file) {
+        return res
+            .status(200)
+            .json({ message: 'No image provided' });
+    }
+    if(req.body.oldPath) {
+        const filePath = path.join(__dirname, req.body.oldPath);
+        fs.unlink(filePath, err => console.log(err));
+    }
+    return res
+        .status(201)
+        .json({ message: 'Image stored', filePath: req.file.path });
+});
+
 app.use('/graphql', graphqlHttp({
     schema: graphqlSchema,
     rootValue: graphqlResolver,
@@ -76,7 +97,7 @@ app.use('/graphql', graphqlHttp({
 app.use((error, req, res, next) => {
     console.log(error);
     const status = error.statusCode || 500;
-    res.status(status).json({ message: error.message, data: error.data });
+    res.status(status).json({ message: error.message, data: error.data || null });
 });
 
 const mongooseConnectOptions = {
