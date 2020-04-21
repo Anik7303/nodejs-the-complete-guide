@@ -1,5 +1,6 @@
 const path = require('path');
 const crypto = require('crypto');
+const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,8 +10,11 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 
-const envKeys = require('./keys');
+const keys = require('./keys');
 
 const errorsController = require('./controllers/errors.js');
 
@@ -22,11 +26,9 @@ const authRoutes = require('./routes/auth');
 // Models
 const User = require('./models/user');
 
-const PORT = 3000;
-
 const app = express();
 const store = new MongoDBStore({
-    uri: envKeys.MONGODB_URI,
+    uri: keys.MONGODB_ATLAS_URI,
     collection: 'sessions'
 });
 const csrfProtection = csrf();
@@ -51,8 +53,14 @@ const fileFilter = (req, file, callback) => {
     }
 };
 
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+
 app.set('view engine', 'ejs');
 app.set('views', 'views');
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
@@ -60,7 +68,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use(session({
-    secret: envKeys.SESSION_SECRET_KEY,
+    secret: keys.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: false,
     store: store
@@ -102,9 +110,19 @@ app.use((error, req, res, next) => {
     res.status(500).render('500', { pageTitle: 'Error!', path: '/500' });
 });
 
+const MONGOOSE_CONNECT_OPTIONS = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+};
+
 mongoose
-    .connect(envKeys.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(keys.MONGODB_ATLAS_URI, MONGOOSE_CONNECT_OPTIONS)
     .then(result => {
-        app.listen(envKeys.PORT);
+        if(!result) {
+            throw new Error('MongoDB Atlas server not working');
+        }
+        app.listen(process.env.PORT || 3000);
     })
     .catch(err => console.log(err));

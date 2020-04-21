@@ -2,7 +2,8 @@
 node_modules/
 
 # important keys
-keys.js
+#keys.js
+nodemon.json
 
 # ignore all .txt files
 *.txt
